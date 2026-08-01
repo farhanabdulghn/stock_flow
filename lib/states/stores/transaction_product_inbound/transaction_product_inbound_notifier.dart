@@ -18,6 +18,34 @@ class TransactionProductInboundNotifier
     return _box.values.toList().reversed.toList();
   }
 
+  Future<void> addTransaction({
+    required DateTime date,
+    required String product,
+    required int quantity,
+    String? description,
+  }) async {
+    if (product.trim().isEmpty) {
+      throw ArgumentError('Barang wajib dipilih');
+    }
+
+    if (quantity <= 0) {
+      throw ArgumentError('Jumlah harus lebih dari 0');
+    }
+
+    final transaction = TransactionProductInboundModel(
+      date: date,
+      product: product,
+      quantity: quantity,
+      description: description,
+    );
+
+    await _box.add(transaction);
+
+    if (ref.mounted) {
+      state = [transaction, ...state];
+    }
+  }
+
   Future<void> clear() async {
     await _box.clear();
     if (ref.mounted) state = [];
