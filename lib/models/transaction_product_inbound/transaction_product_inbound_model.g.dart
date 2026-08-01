@@ -9,7 +9,7 @@ part of 'transaction_product_inbound_model.dart';
 class TransactionProductInboundModelAdapter
     extends TypeAdapter<TransactionProductInboundModel> {
   @override
-  final typeId = 1;
+  final typeId = 2;
 
   @override
   TransactionProductInboundModel read(BinaryReader reader) {

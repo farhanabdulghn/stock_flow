@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:untitled/states/actions/product/product_state.dart';
-import 'package:untitled/states/stock/stock_state.dart';
+import 'package:untitled/states/actions/stock/stock_state.dart';
 
 class ProductListScreen extends ConsumerStatefulWidget {
   const ProductListScreen({super.key});

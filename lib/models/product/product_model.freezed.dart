@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ProductModel {
 
- String get sku; String get itemName; String get category; String get unit;
+@HiveField(0) String get sku;@HiveField(1) String get itemName;@HiveField(2) String get category;@HiveField(3) String get unit;
 /// Create a copy of ProductModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $ProductModelCopyWith<$Res>  {
   factory $ProductModelCopyWith(ProductModel value, $Res Function(ProductModel) _then) = _$ProductModelCopyWithImpl;
 @useResult
 $Res call({
- String sku, String itemName, String category, String unit
+@HiveField(0) String sku,@HiveField(1) String itemName,@HiveField(2) String category,@HiveField(3) String unit
 });
 
 
@@ -156,7 +156,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String sku,  String itemName,  String category,  String unit)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@HiveField(0)  String sku, @HiveField(1)  String itemName, @HiveField(2)  String category, @HiveField(3)  String unit)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ProductModel() when $default != null:
 return $default(_that.sku,_that.itemName,_that.category,_that.unit);case _:
@@ -177,7 +177,7 @@ return $default(_that.sku,_that.itemName,_that.category,_that.unit);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String sku,  String itemName,  String category,  String unit)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@HiveField(0)  String sku, @HiveField(1)  String itemName, @HiveField(2)  String category, @HiveField(3)  String unit)  $default,) {final _that = this;
 switch (_that) {
 case _ProductModel():
 return $default(_that.sku,_that.itemName,_that.category,_that.unit);case _:
@@ -197,7 +197,7 @@ return $default(_that.sku,_that.itemName,_that.category,_that.unit);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String sku,  String itemName,  String category,  String unit)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@HiveField(0)  String sku, @HiveField(1)  String itemName, @HiveField(2)  String category, @HiveField(3)  String unit)?  $default,) {final _that = this;
 switch (_that) {
 case _ProductModel() when $default != null:
 return $default(_that.sku,_that.itemName,_that.category,_that.unit);case _:
@@ -212,13 +212,13 @@ return $default(_that.sku,_that.itemName,_that.category,_that.unit);case _:
 @JsonSerializable()
 
 class _ProductModel implements ProductModel {
-  const _ProductModel({required this.sku, required this.itemName, required this.category, required this.unit});
+  const _ProductModel({@HiveField(0) required this.sku, @HiveField(1) required this.itemName, @HiveField(2) required this.category, @HiveField(3) required this.unit});
   factory _ProductModel.fromJson(Map<String, dynamic> json) => _$ProductModelFromJson(json);
 
-@override final  String sku;
-@override final  String itemName;
-@override final  String category;
-@override final  String unit;
+@override@HiveField(0) final  String sku;
+@override@HiveField(1) final  String itemName;
+@override@HiveField(2) final  String category;
+@override@HiveField(3) final  String unit;
 
 /// Create a copy of ProductModel
 /// with the given fields replaced by the non-null parameter values.
@@ -253,7 +253,7 @@ abstract mixin class _$ProductModelCopyWith<$Res> implements $ProductModelCopyWi
   factory _$ProductModelCopyWith(_ProductModel value, $Res Function(_ProductModel) _then) = __$ProductModelCopyWithImpl;
 @override @useResult
 $Res call({
- String sku, String itemName, String category, String unit
+@HiveField(0) String sku,@HiveField(1) String itemName,@HiveField(2) String category,@HiveField(3) String unit
 });
 
 

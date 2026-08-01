@@ -143,7 +143,7 @@ class _TransactionProductOutboundScreenState
             tooltip: 'Tambah',
             onPressed: () async {
               final added = await AddOutboundTransactionSection.show(context);
-              if (added == true && mounted) {
+              if (added == true && context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Barang masuk berhasil disimpan.'),

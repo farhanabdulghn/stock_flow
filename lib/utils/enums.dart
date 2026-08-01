@@ -1,1 +1,6 @@
-enum HiveBox { auth, transactionProductInbound, transactionProductOutbound }
+enum HiveBox {
+  auth,
+  product,
+  transactionProductInbound,
+  transactionProductOutbound,
+}

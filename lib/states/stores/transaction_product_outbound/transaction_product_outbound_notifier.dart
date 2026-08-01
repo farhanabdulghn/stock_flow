@@ -1,7 +1,7 @@
 import 'package:hive_ce/hive.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:untitled/models/transaction_product_outbound/transaction_product_outbound_model.dart';
-import 'package:untitled/states/stock/stock_state.dart';
+import 'package:untitled/states/actions/stock/stock_state.dart';
 import 'package:untitled/utils/enums.dart';
 
 part 'transaction_product_outbound_notifier.g.dart';

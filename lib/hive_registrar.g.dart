@@ -4,12 +4,14 @@
 
 import 'package:hive_ce/hive_ce.dart';
 import 'package:untitled/models/auth/auth_model.dart';
+import 'package:untitled/models/product/product_model.dart';
 import 'package:untitled/models/transaction_product_inbound/transaction_product_inbound_model.dart';
 import 'package:untitled/models/transaction_product_outbound/transaction_product_outbound_model.dart';
 
 extension HiveRegistrar on HiveInterface {
   void registerAdapters() {
     registerAdapter(AuthModelAdapter());
+    registerAdapter(ProductModelAdapter());
     registerAdapter(TransactionProductInboundModelAdapter());
     registerAdapter(TransactionProductOutboundModelAdapter());
   }
@@ -18,6 +20,7 @@ extension HiveRegistrar on HiveInterface {
 extension IsolatedHiveRegistrar on IsolatedHiveInterface {
   void registerAdapters() {
     registerAdapter(AuthModelAdapter());
+    registerAdapter(ProductModelAdapter());
     registerAdapter(TransactionProductInboundModelAdapter());
     registerAdapter(TransactionProductOutboundModelAdapter());
   }

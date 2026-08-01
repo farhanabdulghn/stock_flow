@@ -48,4 +48,4 @@ final class GetProductsProvider
   }
 }
 
-String _$getProductsHash() => r'6107337fcf1f0fbf065d44f3544c66a12a1d9b4e';
+String _$getProductsHash() => r'731bc28185eb6411e82ee32b01df10ebac366284';
