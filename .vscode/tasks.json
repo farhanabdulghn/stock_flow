@@ -1,0 +1,23 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Final Flutter Clean",
+      "type": "shell",
+      "command": "rm -f pubspec.lock && flutter clean && flutter pub get",
+      "problemMatcher": []
+    },
+    {
+      "label": "Build Runner",
+      "type": "shell",
+      "command": "dart run build_runner build --delete-conflicting-outputs",
+      "problemMatcher": []
+    },
+    {
+      "label": "Generate Routes",
+      "type": "shell",
+      "command": "dart lib/tools/generate_routes.dart",
+      "problemMatcher": []
+    }
+  ]
+}

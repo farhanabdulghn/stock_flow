@@ -1,0 +1,3 @@
+class AutoRoute {
+  const AutoRoute();
+}

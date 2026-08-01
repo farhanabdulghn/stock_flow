@@ -1,0 +1,1 @@
+enum HiveBox { auth }
