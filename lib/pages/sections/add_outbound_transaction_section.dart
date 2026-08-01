@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:untitled/components/inputs/product_dropdown_field.dart';
 import 'package:untitled/models/product/product_model.dart';
+import 'package:untitled/states/actions/stock/stock_state.dart';
 import 'package:untitled/states/stores/transaction_product_outbound/transaction_product_outbound_notifier.dart';
 
 class AddOutboundTransactionSection extends ConsumerStatefulWidget {
@@ -30,6 +31,7 @@ class _AddOutboundTransactionSectionState
   ProductModel? _selectedProduct;
   DateTime _selectedDate = DateTime.now();
   bool _isSubmitting = false;
+  String? _errorMessage;
 
   @override
   void dispose() {
@@ -62,10 +64,21 @@ class _AddOutboundTransactionSectionState
   }
 
   Future<void> _submit() async {
+    if (_isSubmitting) return;
+
+    setState(() {
+      _errorMessage = null;
+    });
+
     final isValid = _formKey.currentState?.validate() ?? false;
+
     if (!isValid) return;
 
-    setState(() => _isSubmitting = true);
+    FocusScope.of(context).unfocus();
+
+    setState(() {
+      _isSubmitting = true;
+    });
 
     try {
       await ref
@@ -78,15 +91,30 @@ class _AddOutboundTransactionSectionState
           );
 
       if (!mounted) return;
+
       Navigator.of(context).pop(true);
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Gagal menyimpan: $error')));
+
+      setState(() {
+        _errorMessage = _getReadableError(error);
+      });
     } finally {
-      if (mounted) setState(() => _isSubmitting = false);
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
     }
+  }
+
+  String _getReadableError(Object error) {
+    return error
+        .toString()
+        .replaceFirst('Invalid argument(s): ', '')
+        .replaceFirst('Bad state: ', '')
+        .replaceFirst('StateError: ', '')
+        .replaceFirst('ArgumentError: ', '');
   }
 
   @override
@@ -94,6 +122,15 @@ class _AddOutboundTransactionSectionState
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
+    final selectedStockState = _selectedProduct == null
+        ? null
+        : ref.watch(stockQuantityBySkuProvider(_selectedProduct!.sku));
+
+    final availableStock = selectedStockState?.maybeWhen<int?>(
+      data: (stock) => stock,
+      orElse: () => null,
+    );
 
     return Padding(
       padding: EdgeInsets.only(bottom: bottomInset),
@@ -160,11 +197,16 @@ class _AddOutboundTransactionSectionState
                   ),
                 ),
                 const SizedBox(height: 18),
-
                 ProductDropdownField(
                   value: _selectedProduct,
+                  onlyAvailableStock: true,
+                  showStock: true,
                   onChanged: (product) {
-                    setState(() => _selectedProduct = product);
+                    setState(() {
+                      _selectedProduct = product;
+                      _quantityController.clear();
+                      _errorMessage = null;
+                    });
                   },
                 ),
                 const SizedBox(height: 18),
@@ -174,23 +216,42 @@ class _AddOutboundTransactionSectionState
                 TextFormField(
                   controller: _quantityController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
+                  onChanged: (_) {
+                    if (_errorMessage != null) {
+                      setState(() {
+                        _errorMessage = null;
+                      });
+                    }
+                  },
+                  decoration: InputDecoration(
                     hintText: '0',
-                    prefixIcon: Icon(Icons.numbers_rounded),
+                    prefixIcon: const Icon(Icons.numbers_rounded),
+                    helperText: availableStock == null
+                        ? null
+                        : 'Stok tersedia: $availableStock',
                   ),
                   validator: (value) {
                     final trimmed = value?.trim() ?? '';
-                    if (trimmed.isEmpty) return 'Jumlah wajib diisi';
+
+                    if (trimmed.isEmpty) {
+                      return 'Jumlah wajib diisi';
+                    }
 
                     final parsed = int.tryParse(trimmed);
+
                     if (parsed == null || parsed <= 0) {
                       return 'Jumlah harus lebih dari 0';
                     }
+
+                    if (availableStock != null && parsed > availableStock) {
+                      return 'Jumlah melebihi stok tersedia '
+                          '($availableStock)';
+                    }
+
                     return null;
                   },
                 ),
                 const SizedBox(height: 18),
-
                 Text('Tujuan', style: theme.textTheme.labelLarge),
                 const SizedBox(height: 8),
                 TextFormField(
@@ -207,7 +268,36 @@ class _AddOutboundTransactionSectionState
                   },
                 ),
                 const SizedBox(height: 28),
-
+                if (_errorMessage != null) ...[
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: colorScheme.errorContainer,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.error_outline_rounded,
+                          color: colorScheme.error,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            _errorMessage!,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: colorScheme.onErrorContainer,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
