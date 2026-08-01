@@ -50,7 +50,7 @@ final class TransactionProductInboundNotifierProvider
 }
 
 String _$transactionProductInboundNotifierHash() =>
-    r'4ae14db424b0c65f976dd224ccb60edf64d1bed9';
+    r'5fb61d23ba90298fb2aa1f78fadd34b0165df19f';
 
 abstract class _$TransactionProductInboundNotifier
     extends $Notifier<List<TransactionProductInboundModel>> {

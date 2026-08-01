@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:untitled/states/actions/product/product_state.dart';
+import 'package:untitled/states/stock/stock_state.dart';
 
 class ProductListScreen extends ConsumerStatefulWidget {
   const ProductListScreen({super.key});
@@ -122,6 +123,13 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
     required bool allProductsEmpty,
     required List<dynamic> filteredProducts,
   }) {
+    final stockState = ref.watch(stockListProvider);
+
+    final stockByItemName = stockState.maybeWhen(
+      data: (list) => {for (final s in list) s.itemName: s.quantity},
+      orElse: () => <String, int>{},
+    );
+
     if (allProductsEmpty) {
       return _ProductEmptyState(onRefresh: _refreshProducts);
     }
@@ -146,7 +154,11 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
         itemBuilder: (context, index) {
           final product = filteredProducts[index];
 
-          return _ProductCard(number: index + 1, itemName: product.itemName);
+          return _ProductCard(
+            number: index + 1,
+            itemName: product.itemName,
+            stock: stockByItemName[product.itemName] ?? 0,
+          );
         },
       ),
     );
@@ -213,15 +225,22 @@ class _ProductSummaryCard extends StatelessWidget {
 }
 
 class _ProductCard extends StatelessWidget {
-  const _ProductCard({required this.number, required this.itemName});
+  const _ProductCard({
+    required this.number,
+    required this.itemName,
+    required this.stock,
+  });
 
   final int number;
   final String itemName;
+  final int stock;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+
+    final isLowStock = stock <= 0;
 
     return Card(
       child: InkWell(
@@ -272,24 +291,54 @@ class _ProductCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              Container(
-                constraints: const BoxConstraints(minWidth: 36, minHeight: 32),
-                alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Text(
-                  '$number',
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w700,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Container(
+                    constraints: const BoxConstraints(
+                      minWidth: 36,
+                      minHeight: 32,
+                    ),
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      '$number',
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isLowStock
+                          ? colorScheme.errorContainer
+                          : colorScheme.tertiaryContainer,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      'Stok: $stock',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: isLowStock
+                            ? colorScheme.onErrorContainer
+                            : colorScheme.onTertiaryContainer,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

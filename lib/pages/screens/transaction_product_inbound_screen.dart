@@ -141,6 +141,20 @@ class _TransactionProductInboundScreenState
         title: const Text('Barang Masuk'),
         actions: [
           IconButton(
+            tooltip: 'Tambah',
+            onPressed: () async {
+              final added = await AddInboundTransactionSection.show(context);
+              if (added == true && mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Barang masuk berhasil disimpan.'),
+                  ),
+                );
+              }
+            },
+            icon: const Icon(Icons.add_rounded),
+          ),
+          IconButton(
             tooltip: 'Muat ulang',
             onPressed: _refreshTransactions,
             icon: const Icon(Icons.refresh_rounded),
@@ -152,18 +166,6 @@ class _TransactionProductInboundScreenState
           ),
           const SizedBox(width: 8),
         ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          final added = await AddInboundTransactionSection.show(context);
-          if (added == true && mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Barang masuk berhasil disimpan.')),
-            );
-          }
-        },
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('Tambah'),
       ),
       body: SafeArea(
         child: Column(
