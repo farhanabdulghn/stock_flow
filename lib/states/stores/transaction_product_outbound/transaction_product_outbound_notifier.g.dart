@@ -50,7 +50,7 @@ final class TransactionProductOutboundNotifierProvider
 }
 
 String _$transactionProductOutboundNotifierHash() =>
-    r'3d88714d72bca01e1d028eb220d3af6222735096';
+    r'd8c5147b1210cbd9e4831918e07cfdf57ddd3aa9';
 
 abstract class _$TransactionProductOutboundNotifier
     extends $Notifier<List<TransactionProductOutboundModel>> {

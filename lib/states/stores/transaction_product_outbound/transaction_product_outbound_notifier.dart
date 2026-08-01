@@ -1,7 +1,7 @@
 import 'package:hive_ce/hive.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:untitled/models/transaction_product_inbound/transaction_product_inbound_model.dart';
 import 'package:untitled/models/transaction_product_outbound/transaction_product_outbound_model.dart';
-import 'package:untitled/states/actions/stock/stock_state.dart';
 import 'package:untitled/utils/enums.dart';
 
 part 'transaction_product_outbound_notifier.g.dart';
@@ -15,9 +15,37 @@ class TransactionProductOutboundNotifier
     );
   }
 
+  Box<TransactionProductInboundModel> get _inboundBox {
+    return Hive.box<TransactionProductInboundModel>(
+      HiveBox.transactionProductInbound.name,
+    );
+  }
+
   @override
   List<TransactionProductOutboundModel> build() {
     return _box.values.toList().reversed.toList();
+  }
+
+  String _normalizeSku(String value) {
+    return value.trim().toUpperCase();
+  }
+
+  int _getAvailableStock(String sku) {
+    final normalizedSku = _normalizeSku(sku);
+
+    final totalInbound = _inboundBox.values
+        .where(
+          (transaction) => _normalizeSku(transaction.product) == normalizedSku,
+        )
+        .fold<int>(0, (total, transaction) => total + transaction.quantity);
+
+    final totalOutbound = _box.values
+        .where(
+          (transaction) => _normalizeSku(transaction.product) == normalizedSku,
+        )
+        .fold<int>(0, (total, transaction) => total + transaction.quantity);
+
+    return totalInbound - totalOutbound;
   }
 
   Future<void> addTransaction({
@@ -26,7 +54,7 @@ class TransactionProductOutboundNotifier
     required int quantity,
     required String destination,
   }) async {
-    final normalizedSku = productSku.trim().toUpperCase();
+    final normalizedSku = _normalizeSku(productSku);
     final normalizedDestination = destination.trim();
 
     if (normalizedSku.isEmpty) {
@@ -41,9 +69,7 @@ class TransactionProductOutboundNotifier
       throw ArgumentError('Tujuan wajib diisi');
     }
 
-    final availableStock = await ref.read(
-      stockQuantityBySkuProvider(normalizedSku).future,
-    );
+    final availableStock = _getAvailableStock(normalizedSku);
 
     if (quantity > availableStock) {
       throw StateError(
