@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 import 'package:untitled/models/product/product_model.dart';
 import 'package:untitled/pages/sections/product_form_section.dart';
 import 'package:untitled/states/actions/product/product_state.dart';
@@ -92,9 +93,9 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
 
     if (updated != true || !mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Barang berhasil diperbarui.')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Barang berhasil diperbarui.')));
   }
 
   Future<void> _showDeleteConfirmation(ProductModel product) async {
@@ -102,7 +103,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
 
     if (hasTransactionHistory) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(
             'Barang tidak dapat dihapus karena sudah memiliki '
             'histori transaksi.',
@@ -161,7 +162,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Barang berhasil dihapus.')));
+      ).showSnackBar(SnackBar(content: Text('Barang berhasil dihapus.')));
     } catch (error) {
       if (!mounted) return;
 
@@ -192,19 +193,19 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Daftar Barang'),
+        title: Text('Daftar Barang'),
         actions: [
           IconButton(
             tooltip: 'Tambah Barang',
             onPressed: _showAddProductForm,
-            icon: const Icon(Icons.add_rounded),
+            icon: Icon(PhosphorIconsBold.plus),
           ),
           IconButton(
             tooltip: 'Muat Ulang',
             onPressed: _refreshProducts,
-            icon: const Icon(Icons.refresh_rounded),
+            icon: Icon(PhosphorIconsBold.arrowClockwise),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
         ],
       ),
       body: SafeArea(
@@ -232,24 +233,24 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
             return Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                  padding: EdgeInsets.fromLTRB(16, 16, 16, 12),
                   child: _ProductSummaryCard(totalProducts: products.length),
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
                   child: TextField(
                     controller: _searchController,
                     textInputAction: TextInputAction.search,
                     onChanged: _onSearchChanged,
                     decoration: InputDecoration(
                       hintText: 'Cari SKU, nama, kategori, atau satuan...',
-                      prefixIcon: const Icon(Icons.search_rounded),
+                      prefixIcon: Icon(Icons.search_rounded),
                       suffixIcon: _searchQuery.isEmpty
                           ? null
                           : IconButton(
                               tooltip: 'Hapus Pencarian',
                               onPressed: _clearSearch,
-                              icon: const Icon(Icons.close_rounded),
+                              icon: Icon(Icons.close_rounded),
                             ),
                     ),
                   ),
@@ -657,7 +658,7 @@ class _ProductEmptyState extends StatelessWidget {
           Center(
             child: FilledButton.icon(
               onPressed: onAddProduct,
-              icon: Icon(Icons.add_rounded),
+              icon: Icon(PhosphorIconsBold.plus),
               label: Text('Tambah Barang'),
             ),
           ),

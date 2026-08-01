@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 import 'package:untitled/models/product/product_model.dart';
 import 'package:untitled/states/stores/product/product_notifier.dart';
 
@@ -286,14 +287,13 @@ class _ProductFormSectionState extends ConsumerState<ProductFormSection> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 30),
-
+                SizedBox(height: 30),
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
                     onPressed: _isSubmitting ? null : _submit,
                     icon: _isSubmitting
-                        ? const SizedBox(
+                        ? SizedBox(
                             width: 18,
                             height: 18,
                             child: CircularProgressIndicator(strokeWidth: 2),
@@ -301,7 +301,7 @@ class _ProductFormSectionState extends ConsumerState<ProductFormSection> {
                         : Icon(
                             widget.isEditing
                                 ? Icons.save_rounded
-                                : Icons.add_rounded,
+                                : PhosphorIconsBold.plus,
                           ),
                     label: Text(
                       _isSubmitting

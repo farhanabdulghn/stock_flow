@@ -59,9 +59,7 @@ class _AddOutboundTransactionSectionState
   Future<void> _submit() async {
     if (_isSubmitting) return;
 
-    setState(() {
-      _errorMessage = null;
-    });
+    setState(() => _errorMessage = null);
 
     final isValid = _formKey.currentState?.validate() ?? false;
 
@@ -89,15 +87,9 @@ class _AddOutboundTransactionSectionState
     } catch (error) {
       if (!mounted) return;
 
-      setState(() {
-        _errorMessage = _getReadableError(error);
-      });
+      setState(() => _errorMessage = _getReadableError(error));
     } finally {
-      if (mounted) {
-        setState(() {
-          _isSubmitting = false;
-        });
-      }
+      if (mounted) setState(() => _isSubmitting = false);
     }
   }
 

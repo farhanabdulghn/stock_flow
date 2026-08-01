@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 import 'package:untitled/models/transaction_product_outbound/transaction_product_outbound_model.dart';
 import 'package:untitled/pages/sections/add_outbound_transaction_section.dart';
 import 'package:untitled/states/stores/transaction_product_outbound/transaction_product_outbound_notifier.dart';
@@ -137,7 +138,7 @@ class _TransactionProductOutboundScreenState
                 );
               }
             },
-            icon: Icon(Icons.add_rounded),
+            icon: Icon(PhosphorIconsBold.plus),
           ),
           IconButton(
             tooltip: 'Muat ulang',
