@@ -23,17 +23,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _obscurePassword = true;
   bool _isSubmitting = false;
 
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-
-    _emailFocusNode.dispose();
-    _passwordFocusNode.dispose();
-
-    super.dispose();
-  }
-
   Future<void> _onLogin() async {
     if (_isSubmitting) return;
 
@@ -46,9 +35,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       return;
     }
 
-    setState(() {
-      _isSubmitting = true;
-    });
+    setState(() => _isSubmitting = true);
 
     try {
       final email = _emailController.text.trim();
@@ -68,11 +55,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
       _showLoginError(_getReadableError(error));
     } finally {
-      if (mounted) {
-        setState(() {
-          _isSubmitting = false;
-        });
-      }
+      if (mounted) setState(() => _isSubmitting = false);
     }
   }
 
@@ -111,13 +94,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         SnackBar(
           backgroundColor: colorScheme.errorContainer,
           content: Row(
+            spacing: 10,
             children: [
               PhosphorIcon(
                 PhosphorIconsDuotone.xCircle,
                 color: colorScheme.error,
                 size: 20,
               ),
-              const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   message,
@@ -136,15 +119,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   String? _emailValidator(String? value) {
     final email = value?.trim() ?? '';
 
-    if (email.isEmpty) {
-      return 'Email wajib diisi';
-    }
+    if (email.isEmpty) return 'Email wajib diisi';
 
     final emailPattern = RegExp(r'^[\w\-.]+@([\w-]+\.)+[\w-]{2,}$');
 
-    if (!emailPattern.hasMatch(email)) {
-      return 'Format email tidak valid';
-    }
+    if (!emailPattern.hasMatch(email)) return 'Format email tidak valid';
 
     return null;
   }
@@ -158,9 +137,32 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+
+    final normalStyle = theme.textTheme.bodySmall?.copyWith(
+      color: colorScheme.onSurfaceVariant,
+      height: 1.6,
+    );
+
+    final linkStyle = theme.textTheme.bodySmall?.copyWith(
+      color: colorScheme.primary,
+      fontWeight: FontWeight.w700,
+      decoration: TextDecoration.underline,
+      decorationColor: colorScheme.primary,
+    );
 
     return Scaffold(
       body: SafeArea(
@@ -168,7 +170,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           builder: (context, constraints) {
             return SingleChildScrollView(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   minHeight: constraints.maxHeight - 48,
@@ -176,15 +178,45 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: 42),
-
-                    _LoginHeader(colorScheme: colorScheme),
-
-                    const SizedBox(height: 40),
-
+                    SizedBox(height: 42),
+                    Column(
+                      children: [
+                        Container(
+                          width: 82,
+                          height: 82,
+                          decoration: BoxDecoration(
+                            color: colorScheme.primaryContainer,
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: PhosphorIcon(
+                            PhosphorIconsDuotone.package,
+                            color: colorScheme.primary,
+                            size: 42,
+                          ),
+                        ),
+                        SizedBox(height: 22),
+                        Text(
+                          'Selamat Datang',
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.headlineMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Kelola stok dan transaksi barang dengan lebih mudah.',
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 40),
                     Card(
                       child: Padding(
-                        padding: const EdgeInsets.all(20),
+                        padding: EdgeInsets.all(20),
                         child: AutofillGroup(
                           child: Form(
                             key: _formKey,
@@ -197,7 +229,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
-                                const SizedBox(height: 6),
+                                SizedBox(height: 6),
                                 Text(
                                   'Masukkan akun Admin atau Operator '
                                   'untuk melanjutkan.',
@@ -206,14 +238,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     height: 1.5,
                                   ),
                                 ),
-                                const SizedBox(height: 24),
-
+                                SizedBox(height: 24),
                                 Text(
                                   'Alamat Email',
                                   style: theme.textTheme.labelLarge,
                                 ),
-                                const SizedBox(height: 8),
-
+                                SizedBox(height: 8),
                                 TextFormField(
                                   controller: _emailController,
                                   focusNode: _emailFocusNode,
@@ -238,15 +268,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     ),
                                   ),
                                 ),
-
-                                const SizedBox(height: 18),
-
+                                SizedBox(height: 18),
                                 Text(
                                   'Password',
                                   style: theme.textTheme.labelLarge,
                                 ),
-                                const SizedBox(height: 8),
-
+                                SizedBox(height: 8),
                                 TextFormField(
                                   controller: _passwordController,
                                   focusNode: _passwordFocusNode,
@@ -255,9 +282,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   textInputAction: TextInputAction.done,
                                   autofillHints: const [AutofillHints.password],
                                   validator: _passwordValidator,
-                                  onFieldSubmitted: (_) {
-                                    _onLogin();
-                                  },
+                                  onFieldSubmitted: (_) => _onLogin(),
                                   decoration: InputDecoration(
                                     hintText: 'Masukkan password',
                                     prefixIcon: const PhosphorIcon(
@@ -285,16 +310,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     ),
                                   ),
                                 ),
-
-                                const SizedBox(height: 22),
-
+                                SizedBox(height: 22),
                                 Text(
                                   'Akun Demo',
                                   style: theme.textTheme.labelLarge,
                                 ),
-                                const SizedBox(height: 10),
-
+                                SizedBox(height: 10),
                                 Row(
+                                  spacing: 10,
                                   children: [
                                     Expanded(
                                       child: OutlinedButton.icon(
@@ -306,14 +329,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                                   password: 'admin123',
                                                 );
                                               },
-                                        icon: const PhosphorIcon(
+                                        icon: PhosphorIcon(
                                           PhosphorIconsRegular.shieldCheck,
                                           size: 18,
                                         ),
-                                        label: const Text('Admin'),
+                                        label: Text('Admin'),
                                       ),
                                     ),
-                                    const SizedBox(width: 10),
                                     Expanded(
                                       child: OutlinedButton.icon(
                                         onPressed: _isSubmitting
@@ -325,31 +347,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                                   password: 'operator123',
                                                 );
                                               },
-                                        icon: const PhosphorIcon(
+                                        icon: PhosphorIcon(
                                           PhosphorIconsRegular.user,
                                           size: 18,
                                         ),
-                                        label: const Text('Operator'),
+                                        label: Text('Operator'),
                                       ),
                                     ),
                                   ],
                                 ),
-
-                                const SizedBox(height: 24),
-
+                                SizedBox(height: 24),
                                 SizedBox(
                                   width: double.infinity,
                                   child: FilledButton.icon(
                                     onPressed: _isSubmitting ? null : _onLogin,
                                     icon: _isSubmitting
-                                        ? const SizedBox(
+                                        ? SizedBox(
                                             width: 18,
                                             height: 18,
                                             child: CircularProgressIndicator(
                                               strokeWidth: 2,
                                             ),
                                           )
-                                        : const PhosphorIcon(
+                                        : PhosphorIcon(
                                             PhosphorIconsRegular.signIn,
                                             size: 20,
                                           ),
@@ -364,10 +384,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                       ),
                     ),
-
-                    const SizedBox(height: 32),
-
-                    _LoginTerms(colorScheme: colorScheme),
+                    SizedBox(height: 32),
+                    Text.rich(
+                      TextSpan(
+                        style: normalStyle,
+                        children: [
+                          TextSpan(text: 'Dengan masuk, Anda menyetujui '),
+                          TextSpan(text: 'Ketentuan Layanan', style: linkStyle),
+                          TextSpan(text: ' dan '),
+                          TextSpan(text: 'Kebijakan Privasi', style: linkStyle),
+                          TextSpan(text: ' kami.'),
+                        ],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ],
                 ),
               ),
@@ -375,89 +405,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           },
         ),
       ),
-    );
-  }
-}
-
-class _LoginHeader extends StatelessWidget {
-  const _LoginHeader({required this.colorScheme});
-
-  final ColorScheme colorScheme;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Column(
-      children: [
-        Container(
-          width: 82,
-          height: 82,
-          decoration: BoxDecoration(
-            color: colorScheme.primaryContainer,
-            borderRadius: BorderRadius.circular(24),
-          ),
-          child: PhosphorIcon(
-            PhosphorIconsDuotone.package,
-            color: colorScheme.primary,
-            size: 42,
-          ),
-        ),
-        const SizedBox(height: 22),
-        Text(
-          'Selamat Datang',
-          textAlign: TextAlign.center,
-          style: theme.textTheme.headlineMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Kelola stok dan transaksi barang dengan lebih mudah.',
-          textAlign: TextAlign.center,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-            height: 1.5,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _LoginTerms extends StatelessWidget {
-  const _LoginTerms({required this.colorScheme});
-
-  final ColorScheme colorScheme;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    final normalStyle = theme.textTheme.bodySmall?.copyWith(
-      color: colorScheme.onSurfaceVariant,
-      height: 1.6,
-    );
-
-    final linkStyle = theme.textTheme.bodySmall?.copyWith(
-      color: colorScheme.primary,
-      fontWeight: FontWeight.w700,
-      decoration: TextDecoration.underline,
-      decorationColor: colorScheme.primary,
-    );
-
-    return Text.rich(
-      TextSpan(
-        style: normalStyle,
-        children: [
-          const TextSpan(text: 'Dengan masuk, Anda menyetujui '),
-          TextSpan(text: 'Ketentuan Layanan', style: linkStyle),
-          const TextSpan(text: ' dan '),
-          TextSpan(text: 'Kebijakan Privasi', style: linkStyle),
-          const TextSpan(text: ' kami.'),
-        ],
-      ),
-      textAlign: TextAlign.center,
     );
   }
 }

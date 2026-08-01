@@ -183,7 +183,6 @@ class _AddOutboundTransactionSectionState
                   ],
                 ),
                 const SizedBox(height: 24),
-
                 Text('Tanggal', style: theme.textTheme.labelLarge),
                 const SizedBox(height: 8),
                 InkWell(

@@ -20,12 +20,6 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
 
   String _searchQuery = '';
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
   Future<void> _refreshProducts() async {
     ref.invalidate(getProductsProvider);
     ref.invalidate(stockListProvider);
@@ -38,17 +32,13 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
   }
 
   void _onSearchChanged(String value) {
-    setState(() {
-      _searchQuery = value.trim().toLowerCase();
-    });
+    setState(() => _searchQuery = value.trim().toLowerCase());
   }
 
   void _clearSearch() {
     _searchController.clear();
 
-    setState(() {
-      _searchQuery = '';
-    });
+    setState(() => _searchQuery = '');
 
     FocusScope.of(context).unfocus();
   }
@@ -191,6 +181,12 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final productsState = ref.watch(getProductsProvider);
 
@@ -213,9 +209,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
       ),
       body: SafeArea(
         child: productsState.when(
-          loading: () {
-            return const _ProductLoadingState();
-          },
+          loading: () => _ProductLoadingState(),
           error: (error, stackTrace) {
             return _ProductErrorState(onRetry: _refreshProducts);
           },
@@ -622,10 +616,10 @@ class _ProductEmptyState extends StatelessWidget {
     return RefreshIndicator.adaptive(
       onRefresh: onRefresh,
       child: ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(32, 32, 32, 110),
+        physics: AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.fromLTRB(32, 32, 32, 110),
         children: [
-          const SizedBox(height: 50),
+          SizedBox(height: 50),
           Center(
             child: Container(
               width: 92,
@@ -641,7 +635,7 @@ class _ProductEmptyState extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 22),
+          SizedBox(height: 22),
           Text(
             'Belum ada barang',
             textAlign: TextAlign.center,
@@ -649,7 +643,7 @@ class _ProductEmptyState extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
             'Tambahkan master barang agar transaksi barang masuk '
             'dan keluar dapat dilakukan.',
@@ -659,12 +653,12 @@ class _ProductEmptyState extends StatelessWidget {
               height: 1.5,
             ),
           ),
-          const SizedBox(height: 22),
+          SizedBox(height: 22),
           Center(
             child: FilledButton.icon(
               onPressed: onAddProduct,
-              icon: const Icon(Icons.add_rounded),
-              label: const Text('Tambah Barang'),
+              icon: Icon(Icons.add_rounded),
+              label: Text('Tambah Barang'),
             ),
           ),
         ],
@@ -689,7 +683,7 @@ class _SearchEmptyState extends StatelessWidget {
 
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(32, 24, 32, 110),
+        padding: EdgeInsets.fromLTRB(32, 24, 32, 110),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -706,7 +700,7 @@ class _SearchEmptyState extends StatelessWidget {
                 color: colorScheme.onSurfaceVariant,
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             Text(
               'Barang tidak ditemukan',
               textAlign: TextAlign.center,
@@ -714,7 +708,7 @@ class _SearchEmptyState extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               searchQuery.trim().isEmpty
                   ? 'Coba gunakan kata kunci yang berbeda.'
@@ -726,11 +720,11 @@ class _SearchEmptyState extends StatelessWidget {
                 height: 1.5,
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             TextButton.icon(
               onPressed: onClearSearch,
-              icon: const Icon(Icons.close_rounded),
-              label: const Text('Hapus Pencarian'),
+              icon: Icon(Icons.close_rounded),
+              label: Text('Hapus Pencarian'),
             ),
           ],
         ),
@@ -768,7 +762,7 @@ class _ProductErrorState extends StatelessWidget {
                 color: colorScheme.error,
               ),
             ),
-            const SizedBox(height: 22),
+            SizedBox(height: 22),
             Text(
               'Gagal memuat barang',
               textAlign: TextAlign.center,
@@ -776,7 +770,7 @@ class _ProductErrorState extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               'Terjadi kesalahan saat mengambil data barang.',
               textAlign: TextAlign.center,
@@ -785,11 +779,11 @@ class _ProductErrorState extends StatelessWidget {
                 height: 1.5,
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             FilledButton.icon(
               onPressed: onRetry,
-              icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Coba Lagi'),
+              icon: Icon(Icons.refresh_rounded),
+              label: Text('Coba Lagi'),
             ),
           ],
         ),

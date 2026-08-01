@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 import 'package:untitled/models/product/product_model.dart';
 import 'package:untitled/states/actions/product/product_state.dart';
 import 'package:untitled/states/actions/stock/stock_state.dart';
@@ -111,7 +112,7 @@ class ProductDropdownField extends ConsumerWidget {
         onChanged: null,
         decoration: const InputDecoration(
           labelText: 'Barang',
-          prefixIcon: Icon(Icons.inventory_2_outlined),
+          prefixIcon: PhosphorIcon(PhosphorIconsRegular.package, size: 20),
           helperText: 'Belum ada barang dengan stok tersedia',
         ),
         validator: (_) {
@@ -125,7 +126,7 @@ class ProductDropdownField extends ConsumerWidget {
       isExpanded: true,
       decoration: const InputDecoration(
         labelText: 'Barang',
-        prefixIcon: Icon(Icons.inventory_2_outlined),
+        prefixIcon: PhosphorIcon(PhosphorIconsRegular.package, size: 20),
       ),
       items: products.map((product) {
         final stock = stockBySku?[_normalizeSku(product.sku)];
@@ -159,7 +160,7 @@ class _ProductDropdownLoading extends StatelessWidget {
     return const InputDecorator(
       decoration: InputDecoration(
         labelText: 'Barang',
-        prefixIcon: Icon(Icons.inventory_2_outlined),
+        prefixIcon: PhosphorIcon(PhosphorIconsRegular.package, size: 20),
       ),
       child: SizedBox(height: 20, child: LinearProgressIndicator()),
     );
@@ -176,7 +177,7 @@ class _ProductDropdownError extends StatelessWidget {
     return InputDecorator(
       decoration: const InputDecoration(
         labelText: 'Barang',
-        prefixIcon: Icon(Icons.inventory_2_outlined),
+        prefixIcon: PhosphorIcon(PhosphorIconsRegular.package, size: 20),
       ),
       child: Row(
         children: [

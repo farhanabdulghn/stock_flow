@@ -4,6 +4,8 @@ import 'package:untitled/models/transaction_product_outbound/transaction_product
 import 'package:untitled/pages/sections/add_outbound_transaction_section.dart';
 import 'package:untitled/states/stores/transaction_product_outbound/transaction_product_outbound_notifier.dart';
 
+final _provider = transactionProductOutboundProvider;
+
 class TransactionProductOutboundScreen extends ConsumerStatefulWidget {
   const TransactionProductOutboundScreen({super.key});
 
@@ -41,11 +43,11 @@ class _TransactionProductOutboundScreenState
   }
 
   Future<void> _refreshTransactions() async {
-    ref.invalidate(transactionProductOutboundProvider);
+    ref.invalidate(_provider);
   }
 
   Future<void> _showClearConfirmation() async {
-    final transactions = ref.read(transactionProductOutboundProvider);
+    final transactions = ref.read(_provider);
 
     if (transactions.isEmpty) {
       return;
@@ -93,7 +95,7 @@ class _TransactionProductOutboundScreenState
       return;
     }
 
-    await ref.read(transactionProductOutboundProvider.notifier).clear();
+    await ref.read(_provider.notifier).clear();
 
     if (!mounted) {
       return;
@@ -110,7 +112,7 @@ class _TransactionProductOutboundScreenState
 
   @override
   Widget build(BuildContext context) {
-    final transactions = ref.watch(transactionProductOutboundProvider);
+    final transactions = ref.watch(_provider);
 
     final filteredTransactions = transactions.where((transaction) {
       if (_searchQuery.isEmpty) {
@@ -170,7 +172,7 @@ class _TransactionProductOutboundScreenState
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+              padding: EdgeInsets.fromLTRB(16, 16, 16, 12),
               child: _OutboundSummaryCard(
                 totalTransactions: transactions.length,
                 totalQuantity: totalQuantity,
@@ -226,10 +228,10 @@ class _TransactionProductOutboundScreenState
       onRefresh: _refreshTransactions,
       child: ListView.separated(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+        physics: AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.fromLTRB(16, 0, 16, 24),
         itemCount: filteredTransactions.length,
-        separatorBuilder: (_, _) => const SizedBox(height: 10),
+        separatorBuilder: (_, _) => SizedBox(height: 10),
         itemBuilder: (context, index) {
           final transaction = filteredTransactions[index];
 

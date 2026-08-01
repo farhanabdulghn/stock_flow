@@ -30,8 +30,8 @@ class _MainFrameScreenState extends ConsumerState<MainFrameScreen> {
 
         return AlertDialog(
           icon: Icon(Icons.logout_rounded, color: colorScheme.error, size: 34),
-          title: const Text('Keluar dari akun?'),
-          content: const Text(
+          title: Text('Keluar dari akun?'),
+          content: Text(
             'Anda harus masuk kembali untuk mengakses aplikasi.',
             textAlign: TextAlign.center,
           ),
@@ -40,7 +40,7 @@ class _MainFrameScreenState extends ConsumerState<MainFrameScreen> {
               onPressed: () {
                 Navigator.of(dialogContext).pop(false);
               },
-              child: const Text('Batal'),
+              child: Text('Batal'),
             ),
             FilledButton(
               style: FilledButton.styleFrom(
@@ -50,7 +50,7 @@ class _MainFrameScreenState extends ConsumerState<MainFrameScreen> {
               onPressed: () {
                 Navigator.of(dialogContext).pop(true);
               },
-              child: const Text('Keluar'),
+              child: Text('Keluar'),
             ),
           ],
         );
@@ -63,9 +63,10 @@ class _MainFrameScreenState extends ConsumerState<MainFrameScreen> {
 
     if (!mounted) return;
 
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute<void>(builder: (_) => const LoginScreen()),
+    context.pushAndRemoveUntil(
+      LoginScreen(),
       (route) => false,
+      transition: false,
     );
   }
 
@@ -77,18 +78,18 @@ class _MainFrameScreenState extends ConsumerState<MainFrameScreen> {
         Functions.userRoleFromValue(currentUser?.role) ?? UserRole.operator;
 
     final pages = role.isAdmin
-        ? const <Widget>[
+        ? <Widget>[
             ProductListScreen(),
             TransactionProductInboundScreen(),
             TransactionProductOutboundScreen(),
           ]
-        : const <Widget>[
+        : <Widget>[
             TransactionProductInboundScreen(),
             TransactionProductOutboundScreen(),
           ];
 
     final items = role.isAdmin
-        ? const <_NavItem>[
+        ? <_NavItem>[
             _NavItem(
               label: 'Barang',
               icon: PhosphorIconsRegular.package,
@@ -105,7 +106,7 @@ class _MainFrameScreenState extends ConsumerState<MainFrameScreen> {
               activeIcon: PhosphorIconsFill.arrowCircleUp,
             ),
           ]
-        : const <_NavItem>[
+        : <_NavItem>[
             _NavItem(
               label: 'Barang Masuk',
               icon: PhosphorIconsRegular.arrowCircleDown,
@@ -128,11 +129,7 @@ class _MainFrameScreenState extends ConsumerState<MainFrameScreen> {
         currentIndex: safeIndex,
         items: items,
         role: role,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+        onTap: (index) => setState(() => _currentIndex = index),
         onLogout: _showLogoutConfirmation,
       ),
     );
@@ -173,9 +170,9 @@ class _CustomNavBar extends StatelessWidget {
     final textTheme = theme.textTheme;
 
     return SafeArea(
-      minimum: const EdgeInsets.symmetric(horizontal: 12),
+      minimum: EdgeInsets.symmetric(horizontal: 12),
       child: Container(
-        padding: const EdgeInsets.all(8),
+        padding: EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: colorScheme.surface,
           borderRadius: BorderRadius.circular(999),
@@ -184,7 +181,7 @@ class _CustomNavBar extends StatelessWidget {
             BoxShadow(
               color: colorScheme.shadow.withValues(alpha: 0.08),
               blurRadius: 20,
-              offset: const Offset(0, 6),
+              offset: Offset(0, 6),
             ),
           ],
         ),

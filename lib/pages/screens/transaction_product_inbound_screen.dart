@@ -4,6 +4,8 @@ import 'package:untitled/models/transaction_product_inbound/transaction_product_
 import 'package:untitled/pages/sections/add_inbound_transaction_section.dart';
 import 'package:untitled/states/stores/transaction_product_inbound/transaction_product_inbound_notifier.dart';
 
+final _provider = transactionProductInboundProvider;
+
 class TransactionProductInboundScreen extends ConsumerStatefulWidget {
   const TransactionProductInboundScreen({super.key});
 
@@ -18,38 +20,26 @@ class _TransactionProductInboundScreenState
 
   String _searchQuery = '';
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
   void _onSearchChanged(String value) {
-    setState(() {
-      _searchQuery = value.trim().toLowerCase();
-    });
+    setState(() => _searchQuery = value.trim().toLowerCase());
   }
 
   void _clearSearch() {
     _searchController.clear();
 
-    setState(() {
-      _searchQuery = '';
-    });
+    setState(() => _searchQuery = '');
 
     FocusScope.of(context).unfocus();
   }
 
   Future<void> _refreshTransactions() async {
-    ref.invalidate(transactionProductInboundProvider);
+    ref.invalidate(_provider);
   }
 
   Future<void> _showClearConfirmation() async {
-    final transactions = ref.read(transactionProductInboundProvider);
+    final transactions = ref.read(_provider);
 
-    if (transactions.isEmpty) {
-      return;
-    }
+    if (transactions.isEmpty) return;
 
     final shouldClear = await showDialog<bool>(
       context: context,
@@ -60,60 +50,54 @@ class _TransactionProductInboundScreenState
             color: Theme.of(dialogContext).colorScheme.error,
             size: 32,
           ),
-          title: const Text('Hapus semua transaksi?'),
-          content: const Text(
+          title: Text('Hapus semua transaksi?'),
+          content: Text(
             'Seluruh riwayat transaksi barang masuk akan dihapus secara permanen.',
             textAlign: TextAlign.center,
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop(false);
-              },
-              child: const Text('Batal'),
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text('Batal'),
             ),
             FilledButton(
               style: FilledButton.styleFrom(
                 backgroundColor: Theme.of(dialogContext).colorScheme.error,
                 foregroundColor: Theme.of(dialogContext).colorScheme.onError,
               ),
-              onPressed: () {
-                Navigator.of(dialogContext).pop(true);
-              },
-              child: const Text('Hapus Semua'),
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text('Hapus Semua'),
             ),
           ],
         );
       },
     );
 
-    if (shouldClear != true) {
-      return;
-    }
+    if (shouldClear != true) return;
 
-    await ref.read(transactionProductInboundProvider.notifier).clear();
+    await ref.read(_provider.notifier).clear();
 
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
 
     _clearSearch();
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Semua transaksi barang masuk berhasil dihapus.'),
-      ),
+      SnackBar(content: Text('Semua transaksi barang masuk berhasil dihapus.')),
     );
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final transactions = ref.watch(transactionProductInboundProvider);
+    final transactions = ref.watch(_provider);
 
     final filteredTransactions = transactions.where((transaction) {
-      if (_searchQuery.isEmpty) {
-        return true;
-      }
+      if (_searchQuery.isEmpty) return true;
 
       final description = transaction.description;
 
@@ -138,7 +122,7 @@ class _TransactionProductInboundScreenState
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Barang Masuk'),
+        title: Text('Barang Masuk'),
         actions: [
           IconButton(
             tooltip: 'Tambah',
@@ -146,52 +130,50 @@ class _TransactionProductInboundScreenState
               final added = await AddInboundTransactionSection.show(context);
               if (added == true && context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Barang masuk berhasil disimpan.'),
-                  ),
+                  SnackBar(content: Text('Barang masuk berhasil disimpan.')),
                 );
               }
             },
-            icon: const Icon(Icons.add_rounded),
+            icon: Icon(Icons.add_rounded),
           ),
           IconButton(
             tooltip: 'Muat ulang',
             onPressed: _refreshTransactions,
-            icon: const Icon(Icons.refresh_rounded),
+            icon: Icon(Icons.refresh_rounded),
           ),
           IconButton(
             tooltip: 'Hapus semua transaksi',
             onPressed: transactions.isEmpty ? null : _showClearConfirmation,
-            icon: const Icon(Icons.delete_sweep_outlined),
+            icon: Icon(Icons.delete_sweep_outlined),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
         ],
       ),
       body: SafeArea(
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+              padding: EdgeInsets.fromLTRB(16, 16, 16, 12),
               child: _InboundSummaryCard(
                 totalTransactions: transactions.length,
                 totalQuantity: totalQuantity,
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: TextField(
                 controller: _searchController,
                 textInputAction: TextInputAction.search,
                 onChanged: _onSearchChanged,
                 decoration: InputDecoration(
                   hintText: 'Cari barang atau keterangan...',
-                  prefixIcon: const Icon(Icons.search_rounded),
+                  prefixIcon: Icon(Icons.search_rounded),
                   suffixIcon: _searchQuery.isEmpty
                       ? null
                       : IconButton(
                           tooltip: 'Hapus pencarian',
                           onPressed: _clearSearch,
-                          icon: const Icon(Icons.close_rounded),
+                          icon: Icon(Icons.close_rounded),
                         ),
                 ),
               ),
@@ -227,11 +209,11 @@ class _TransactionProductInboundScreenState
       onRefresh: _refreshTransactions,
       child: ListView.separated(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+        physics: AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.fromLTRB(16, 0, 16, 24),
         itemCount: filteredTransactions.length,
         separatorBuilder: (context, index) {
-          return const SizedBox(height: 10);
+          return SizedBox(height: 10);
         },
         itemBuilder: (context, index) {
           final transaction = filteredTransactions[index];
@@ -477,25 +459,25 @@ class _InboundTransactionCard extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 _DetailRow(
                   icon: Icons.inventory_2_outlined,
                   label: 'Barang',
                   value: transaction.product,
                 ),
-                const SizedBox(height: 14),
+                SizedBox(height: 14),
                 _DetailRow(
                   icon: Icons.numbers_rounded,
                   label: 'Jumlah',
                   value: '${transaction.quantity}',
                 ),
-                const SizedBox(height: 14),
+                SizedBox(height: 14),
                 _DetailRow(
                   icon: Icons.calendar_today_outlined,
                   label: 'Tanggal',
                   value: _formatDateTime(transaction.date),
                 ),
-                const SizedBox(height: 14),
+                SizedBox(height: 14),
                 _DetailRow(
                   icon: Icons.notes_rounded,
                   label: 'Keterangan',
@@ -503,14 +485,14 @@ class _InboundTransactionCard extends StatelessWidget {
                       ? '-'
                       : description.trim(),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
                     onPressed: () {
                       Navigator.of(bottomSheetContext).pop();
                     },
-                    child: const Text('Tutup'),
+                    child: Text('Tutup'),
                   ),
                 ),
               ],
@@ -533,7 +515,7 @@ class _QuantityBadge extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+      padding: EdgeInsets.symmetric(horizontal: 11, vertical: 7),
       decoration: BoxDecoration(
         color: colorScheme.tertiaryContainer,
         borderRadius: BorderRadius.circular(999),
@@ -577,9 +559,10 @@ class _DetailRow extends StatelessWidget {
           ),
           child: Icon(icon, size: 20, color: colorScheme.primary),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         Expanded(
           child: Column(
+            spacing: 3,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
@@ -588,7 +571,6 @@ class _DetailRow extends StatelessWidget {
                   color: colorScheme.onSurfaceVariant,
                 ),
               ),
-              const SizedBox(height: 3),
               Text(
                 value,
                 style: theme.textTheme.bodyMedium?.copyWith(
@@ -617,10 +599,10 @@ class _InboundEmptyState extends StatelessWidget {
     return RefreshIndicator.adaptive(
       onRefresh: onRefresh,
       child: ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(32),
+        physics: AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.all(32),
         children: [
-          const SizedBox(height: 50),
+          SizedBox(height: 50),
           Center(
             child: Container(
               width: 92,
@@ -636,7 +618,7 @@ class _InboundEmptyState extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 22),
+          SizedBox(height: 22),
           Text(
             'Belum ada barang masuk',
             textAlign: TextAlign.center,
@@ -644,7 +626,7 @@ class _InboundEmptyState extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
             'Transaksi barang masuk yang sudah disimpan akan ditampilkan di halaman ini.',
             textAlign: TextAlign.center,
@@ -653,12 +635,12 @@ class _InboundEmptyState extends StatelessWidget {
               height: 1.5,
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           Center(
             child: OutlinedButton.icon(
               onPressed: onRefresh,
-              icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Muat Ulang'),
+              icon: Icon(Icons.refresh_rounded),
+              label: Text('Muat Ulang'),
             ),
           ),
         ],
@@ -683,7 +665,7 @@ class _InboundSearchEmptyState extends StatelessWidget {
 
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(32, 24, 32, 80),
+        padding: EdgeInsets.fromLTRB(32, 24, 32, 80),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -700,7 +682,7 @@ class _InboundSearchEmptyState extends StatelessWidget {
                 color: colorScheme.onSurfaceVariant,
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             Text(
               'Transaksi tidak ditemukan',
               textAlign: TextAlign.center,
@@ -708,7 +690,7 @@ class _InboundSearchEmptyState extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               'Tidak ada transaksi dengan kata kunci '
               '"${searchQuery.trim()}".',
@@ -718,11 +700,11 @@ class _InboundSearchEmptyState extends StatelessWidget {
                 height: 1.5,
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             TextButton.icon(
               onPressed: onClearSearch,
-              icon: const Icon(Icons.close_rounded),
-              label: const Text('Hapus Pencarian'),
+              icon: Icon(Icons.close_rounded),
+              label: Text('Hapus Pencarian'),
             ),
           ],
         ),
