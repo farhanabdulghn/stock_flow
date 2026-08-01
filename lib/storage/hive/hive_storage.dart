@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:untitled/models/auth/auth_model.dart';
+import 'package:untitled/models/transaction_product_inbound/transaction_product_inbound_model.dart';
+import 'package:untitled/models/transaction_product_outbound/transaction_product_outbound_model.dart';
 import 'package:untitled/storage/secure_storage/secure_storage.dart';
 import 'package:untitled/utils/enums.dart';
 
@@ -10,6 +12,8 @@ class HiveStorage {
     await Hive.initFlutter();
 
     Hive.registerAdapter(AuthModelAdapter());
+    Hive.registerAdapter(TransactionProductInboundModelAdapter());
+    Hive.registerAdapter(TransactionProductOutboundModelAdapter());
 
     String? encryptionKeyString = await SecureStorage.read(K.hive);
     late List<int> encryptionKeyUint8List;
@@ -26,6 +30,14 @@ class HiveStorage {
     await Hive.openBox<AuthModel>(
       HiveBox.auth.name,
       encryptionCipher: HiveAesCipher(encryptionKeyUint8List),
+    );
+
+    await Hive.openBox<TransactionProductInboundModel>(
+      HiveBox.transactionProductInbound.name,
+    );
+
+    await Hive.openBox<TransactionProductOutboundModel>(
+      HiveBox.transactionProductOutbound.name,
     );
   }
 }

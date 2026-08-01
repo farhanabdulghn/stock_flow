@@ -5,6 +5,6 @@ import 'package:untitled/networks/repositories/product_repository.dart';
 part 'product_state.g.dart';
 
 @riverpod
-Future<List<ProductModel>> getGuests(Ref ref) {
+Future<List<ProductModel>> getProducts(Ref ref) {
   return ProductRepository().getProducts();
 }

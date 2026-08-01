@@ -73,14 +73,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
-  void _onLoginAsGuest() {
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      AppRoute.mainFrame,
-      (route) => false,
-    );
-  }
-
   @override
   void dispose() {
     _emailController.dispose();
@@ -102,81 +94,50 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.fromLTRB(24, 139, 24, 32),
-          child: Column(
-            spacing: 32,
-            children: [
-              Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    TextFormField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      style: GoogleFonts.plusJakartaSans(fontSize: 12),
-                      decoration: InputDecoration(hintText: 'Alamat Email'),
-                      validator: (v) =>
-                          (v == null || v.isEmpty) ? 'Email wajib diisi' : null,
-                    ),
-                    SizedBox(height: 8),
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      style: GoogleFonts.plusJakartaSans(fontSize: 12),
-                      decoration: InputDecoration(
-                        hintText: 'Password',
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
-                            size: 18,
-                            color: const Color(0xFF71747D),
-                          ),
-                          onPressed: () => setState(
-                            () => _obscurePassword = !_obscurePassword,
-                          ),
-                        ),
-                      ),
-                      validator: (v) => (v == null || v.isEmpty)
-                          ? 'Password wajib diisi'
-                          : null,
-                    ),
-                    SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _onLogin,
-                        child: Text('Login'),
-                      ),
-                    ),
-                  ],
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  style: GoogleFonts.plusJakartaSans(fontSize: 12),
+                  decoration: InputDecoration(hintText: 'Alamat Email'),
+                  validator: (v) =>
+                      (v == null || v.isEmpty) ? 'Email wajib diisi' : null,
                 ),
-              ),
-              Row(
-                children: [
-                  Expanded(child: Divider(color: Color(0xFFEEEEEE))),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8),
-                    child: Text(
-                      'atau',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 10,
-                        height: 1.5,
+                SizedBox(height: 8),
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: _obscurePassword,
+                  style: GoogleFonts.plusJakartaSans(fontSize: 12),
+                  decoration: InputDecoration(
+                    hintText: 'Password',
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                        size: 18,
                         color: const Color(0xFF71747D),
                       ),
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
                     ),
                   ),
-                  Expanded(child: Divider(color: Color(0xFFEEEEEE))),
-                ],
-              ),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: _onLoginAsGuest,
-                  child: Text('Masuk Sebagai Tamu'),
+                  validator: (v) =>
+                      (v == null || v.isEmpty) ? 'Password wajib diisi' : null,
                 ),
-              ),
-            ],
+                SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _onLogin,
+                    child: Text('Login'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
