@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:untitled/models/transaction_product_outbound/transaction_product_outbound_model.dart';
+import 'package:untitled/pages/sections/add_outbound_transaction_section.dart';
 import 'package:untitled/states/stores/transaction_product_outbound/transaction_product_outbound_notifier.dart';
 
 class TransactionProductOutboundScreen extends ConsumerStatefulWidget {
@@ -150,6 +151,18 @@ class _TransactionProductOutboundScreenState
           ),
           const SizedBox(width: 8),
         ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () async {
+          final added = await AddOutboundTransactionSection.show(context);
+          if (added == true && mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Barang masuk berhasil disimpan.')),
+            );
+          }
+        },
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('Tambah'),
       ),
       body: SafeArea(
         child: Column(
