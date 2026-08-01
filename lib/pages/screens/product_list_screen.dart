@@ -33,7 +33,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
     try {
       await ref.read(getProductsProvider.future);
     } catch (_) {
-      // Error ditampilkan oleh AsyncValue pada UI.
+      //
     }
   }
 
@@ -67,8 +67,6 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
 
     final normalizedItemName = _normalizeProductReference(product.itemName);
 
-    // Pencocokan nama tetap dipertahankan sementara untuk data lama
-    // yang belum berhasil dimigrasikan.
     return normalizedReference == normalizedSku ||
         normalizedReference == normalizedItemName;
   }
@@ -322,7 +320,6 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
           final stock = stockBySku[product.sku.trim().toUpperCase()] ?? 0;
 
           return _ProductCard(
-            number: index + 1,
             product: product,
             stock: stock,
             onEdit: () {
@@ -401,14 +398,12 @@ class _ProductSummaryCard extends StatelessWidget {
 
 class _ProductCard extends StatelessWidget {
   const _ProductCard({
-    required this.number,
     required this.product,
     required this.stock,
     required this.onEdit,
     required this.onDelete,
   });
 
-  final int number;
   final ProductModel product;
   final int stock;
   final VoidCallback onEdit;
@@ -488,67 +483,41 @@ class _ProductCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            Column(
-              children: [
-                Container(
-                  constraints: const BoxConstraints(
-                    minWidth: 34,
-                    minHeight: 30,
-                  ),
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 9,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Text(
-                    '$number',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                      fontWeight: FontWeight.w700,
+            PopupMenuButton<_ProductAction>(
+              tooltip: 'Pilihan Barang',
+              onSelected: (action) {
+                switch (action) {
+                  case _ProductAction.edit:
+                    onEdit();
+                  case _ProductAction.delete:
+                    onDelete();
+                }
+              },
+              itemBuilder: (context) {
+                return const [
+                  PopupMenuItem(
+                    value: _ProductAction.edit,
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit_outlined),
+                        SizedBox(width: 12),
+                        Text('Edit'),
+                      ],
                     ),
                   ),
-                ),
-                PopupMenuButton<_ProductAction>(
-                  tooltip: 'Pilihan Barang',
-                  onSelected: (action) {
-                    switch (action) {
-                      case _ProductAction.edit:
-                        onEdit();
-                      case _ProductAction.delete:
-                        onDelete();
-                    }
-                  },
-                  itemBuilder: (context) {
-                    return const [
-                      PopupMenuItem(
-                        value: _ProductAction.edit,
-                        child: Row(
-                          children: [
-                            Icon(Icons.edit_outlined),
-                            SizedBox(width: 12),
-                            Text('Edit'),
-                          ],
-                        ),
-                      ),
-                      PopupMenuItem(
-                        value: _ProductAction.delete,
-                        child: Row(
-                          children: [
-                            Icon(Icons.delete_outline_rounded),
-                            SizedBox(width: 12),
-                            Text('Hapus'),
-                          ],
-                        ),
-                      ),
-                    ];
-                  },
-                  icon: const Icon(Icons.more_vert_rounded),
-                ),
-              ],
+                  PopupMenuItem(
+                    value: _ProductAction.delete,
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete_outline_rounded),
+                        SizedBox(width: 12),
+                        Text('Hapus'),
+                      ],
+                    ),
+                  ),
+                ];
+              },
+              icon: const Icon(Icons.more_vert_rounded),
             ),
           ],
         ),
