@@ -6,6 +6,7 @@ import 'package:untitled/models/product/product_model.dart';
 import 'package:untitled/models/transaction_product_inbound/transaction_product_inbound_model.dart';
 import 'package:untitled/models/transaction_product_outbound/transaction_product_outbound_model.dart';
 import 'package:untitled/networks/repositories/product_repository.dart';
+import 'package:untitled/storage/hive/hive_transaction_reference_migration.dart';
 import 'package:untitled/storage/secure_storage/secure_storage.dart';
 import 'package:untitled/utils/enums.dart';
 
@@ -52,5 +53,7 @@ class HiveStorage {
     await Hive.openBox<TransactionProductOutboundModel>(
       HiveBox.transactionProductOutbound.name,
     );
+
+    await HiveTransactionReferenceMigration.migrateToSku();
   }
 }

@@ -8,10 +8,11 @@ part 'transaction_product_inbound_notifier.g.dart';
 @riverpod
 class TransactionProductInboundNotifier
     extends _$TransactionProductInboundNotifier {
-  Box<TransactionProductInboundModel> get _box =>
-      Hive.box<TransactionProductInboundModel>(
-        HiveBox.transactionProductInbound.name,
-      );
+  Box<TransactionProductInboundModel> get _box {
+    return Hive.box<TransactionProductInboundModel>(
+      HiveBox.transactionProductInbound.name,
+    );
+  }
 
   @override
   List<TransactionProductInboundModel> build() {
@@ -20,11 +21,14 @@ class TransactionProductInboundNotifier
 
   Future<void> addTransaction({
     required DateTime date,
-    required String product,
+    required String productSku,
     required int quantity,
     String? description,
   }) async {
-    if (product.trim().isEmpty) {
+    final normalizedSku = productSku.trim().toUpperCase();
+    final normalizedDescription = description?.trim();
+
+    if (normalizedSku.isEmpty) {
       throw ArgumentError('Barang wajib dipilih');
     }
 
@@ -34,9 +38,12 @@ class TransactionProductInboundNotifier
 
     final transaction = TransactionProductInboundModel(
       date: date,
-      product: product,
+      product: normalizedSku,
       quantity: quantity,
-      description: description,
+      description:
+          normalizedDescription == null || normalizedDescription.isEmpty
+          ? null
+          : normalizedDescription,
     );
 
     await _box.add(transaction);
@@ -48,6 +55,9 @@ class TransactionProductInboundNotifier
 
   Future<void> clear() async {
     await _box.clear();
-    if (ref.mounted) state = [];
+
+    if (ref.mounted) {
+      state = [];
+    }
   }
 }

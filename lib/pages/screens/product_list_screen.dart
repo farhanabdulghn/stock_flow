@@ -53,19 +53,37 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
     FocusScope.of(context).unfocus();
   }
 
-  bool _hasTransactionHistory(ProductModel product) {
-    final normalizedItemName = product.itemName.trim().toLowerCase();
+  String _normalizeProductReference(String value) {
+    return value.trim().toLowerCase();
+  }
 
+  bool _transactionReferenceMatchesProduct(
+    String reference,
+    ProductModel product,
+  ) {
+    final normalizedReference = _normalizeProductReference(reference);
+
+    final normalizedSku = _normalizeProductReference(product.sku);
+
+    final normalizedItemName = _normalizeProductReference(product.itemName);
+
+    // Pencocokan nama tetap dipertahankan sementara untuk data lama
+    // yang belum berhasil dimigrasikan.
+    return normalizedReference == normalizedSku ||
+        normalizedReference == normalizedItemName;
+  }
+
+  bool _hasTransactionHistory(ProductModel product) {
     final inboundTransactions = ref.read(transactionProductInboundProvider);
 
     final outboundTransactions = ref.read(transactionProductOutboundProvider);
 
     final hasInboundHistory = inboundTransactions.any((transaction) {
-      return transaction.product.trim().toLowerCase() == normalizedItemName;
+      return _transactionReferenceMatchesProduct(transaction.product, product);
     });
 
     final hasOutboundHistory = outboundTransactions.any((transaction) {
-      return transaction.product.trim().toLowerCase() == normalizedItemName;
+      return _transactionReferenceMatchesProduct(transaction.product, product);
     });
 
     return hasInboundHistory || hasOutboundHistory;
@@ -82,13 +100,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
   }
 
   Future<void> _showEditProductForm(ProductModel product) async {
-    final hasTransactionHistory = _hasTransactionHistory(product);
-
-    final updated = await ProductFormSection.show(
-      context,
-      product: product,
-      lockItemName: hasTransactionHistory,
-    );
+    final updated = await ProductFormSection.show(context, product: product);
 
     if (updated != true || !mounted) return;
 

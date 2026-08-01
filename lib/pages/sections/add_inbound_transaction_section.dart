@@ -72,7 +72,7 @@ class _AddInboundTransactionSectionState
           .read(transactionProductInboundProvider.notifier)
           .addTransaction(
             date: _selectedDate,
-            product: _selectedProduct!.itemName,
+            productSku: _selectedProduct!.sku,
             quantity: int.parse(_quantityController.text.trim()),
             description: _descriptionController.text.trim().isEmpty
                 ? null

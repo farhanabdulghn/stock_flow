@@ -72,7 +72,7 @@ class _AddOutboundTransactionSectionState
           .read(transactionProductOutboundProvider.notifier)
           .addTransaction(
             date: _selectedDate,
-            product: _selectedProduct!.itemName,
+            productSku: _selectedProduct!.sku,
             quantity: int.parse(_quantityController.text.trim()),
             destination: _destinationController.text.trim(),
           );

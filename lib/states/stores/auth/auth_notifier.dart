@@ -41,11 +41,7 @@ class AuthNotifier extends _$AuthNotifier {
 
     final storedRole = Functions.userRoleFromValue(storedUser.role);
 
-    // Session lama sebelum implementasi role dianggap tidak valid.
-    // User akan diarahkan kembali ke halaman login.
-    if (storedRole == null) {
-      return null;
-    }
+    if (storedRole == null) return null;
 
     return storedUser;
   }
@@ -75,17 +71,13 @@ class AuthNotifier extends _$AuthNotifier {
 
     await _box.put(_key, user);
 
-    if (ref.mounted) {
-      state = user;
-    }
+    if (ref.mounted) state = user;
   }
 
   Future<void> logout() async {
     await _box.delete(_key);
 
-    if (ref.mounted) {
-      state = null;
-    }
+    if (ref.mounted) state = null;
   }
 }
 

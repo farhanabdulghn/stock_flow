@@ -9,10 +9,11 @@ part 'transaction_product_outbound_notifier.g.dart';
 @riverpod
 class TransactionProductOutboundNotifier
     extends _$TransactionProductOutboundNotifier {
-  Box<TransactionProductOutboundModel> get _box =>
-      Hive.box<TransactionProductOutboundModel>(
-        HiveBox.transactionProductOutbound.name,
-      );
+  Box<TransactionProductOutboundModel> get _box {
+    return Hive.box<TransactionProductOutboundModel>(
+      HiveBox.transactionProductOutbound.name,
+    );
+  }
 
   @override
   List<TransactionProductOutboundModel> build() {
@@ -21,11 +22,14 @@ class TransactionProductOutboundNotifier
 
   Future<void> addTransaction({
     required DateTime date,
-    required String product,
+    required String productSku,
     required int quantity,
     required String destination,
   }) async {
-    if (product.trim().isEmpty) {
+    final normalizedSku = productSku.trim().toUpperCase();
+    final normalizedDestination = destination.trim();
+
+    if (normalizedSku.isEmpty) {
       throw ArgumentError('Barang wajib dipilih');
     }
 
@@ -33,25 +37,26 @@ class TransactionProductOutboundNotifier
       throw ArgumentError('Jumlah harus lebih dari 0');
     }
 
-    if (destination.trim().isEmpty) {
+    if (normalizedDestination.isEmpty) {
       throw ArgumentError('Tujuan wajib diisi');
     }
 
     final availableStock = await ref.read(
-      stockQuantityByItemNameProvider(product).future,
+      stockQuantityBySkuProvider(normalizedSku).future,
     );
 
     if (quantity > availableStock) {
       throw StateError(
-        'Stok tidak mencukupi. Stok tersedia: $availableStock, diminta: $quantity',
+        'Stok tidak mencukupi. '
+        'Stok tersedia: $availableStock, diminta: $quantity',
       );
     }
 
     final transaction = TransactionProductOutboundModel(
       date: date,
-      product: product,
+      product: normalizedSku,
       quantity: quantity,
-      destination: destination,
+      destination: normalizedDestination,
     );
 
     await _box.add(transaction);
@@ -63,6 +68,9 @@ class TransactionProductOutboundNotifier
 
   Future<void> clear() async {
     await _box.clear();
-    if (ref.mounted) state = [];
+
+    if (ref.mounted) {
+      state = [];
+    }
   }
 }

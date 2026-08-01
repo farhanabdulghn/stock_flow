@@ -46,39 +46,31 @@ final class StockListProvider
   }
 }
 
-String _$stockListHash() => r'31fcd6e704de514ce402c9d57a951cd4b0328301';
+String _$stockListHash() => r'2a2b1d66b25293540c48f1a74f9fd633f0f4a146';
 
-/// Helper untuk ambil stok satu barang saja, dipakai nanti di step 4
-/// (validasi stok saat barang keluar).
+@ProviderFor(stockQuantityBySku)
+final stockQuantityBySkuProvider = StockQuantityBySkuFamily._();
 
-@ProviderFor(stockQuantityByItemName)
-final stockQuantityByItemNameProvider = StockQuantityByItemNameFamily._();
-
-/// Helper untuk ambil stok satu barang saja, dipakai nanti di step 4
-/// (validasi stok saat barang keluar).
-
-final class StockQuantityByItemNameProvider
+final class StockQuantityBySkuProvider
     extends $FunctionalProvider<AsyncValue<int>, int, FutureOr<int>>
     with $FutureModifier<int>, $FutureProvider<int> {
-  /// Helper untuk ambil stok satu barang saja, dipakai nanti di step 4
-  /// (validasi stok saat barang keluar).
-  StockQuantityByItemNameProvider._({
-    required StockQuantityByItemNameFamily super.from,
+  StockQuantityBySkuProvider._({
+    required StockQuantityBySkuFamily super.from,
     required String super.argument,
   }) : super(
          retry: null,
-         name: r'stockQuantityByItemNameProvider',
+         name: r'stockQuantityBySkuProvider',
          isAutoDispose: true,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
 
   @override
-  String debugGetCreateSourceHash() => _$stockQuantityByItemNameHash();
+  String debugGetCreateSourceHash() => _$stockQuantityBySkuHash();
 
   @override
   String toString() {
-    return r'stockQuantityByItemNameProvider'
+    return r'stockQuantityBySkuProvider'
         ''
         '($argument)';
   }
@@ -91,13 +83,12 @@ final class StockQuantityByItemNameProvider
   @override
   FutureOr<int> create(Ref ref) {
     final argument = this.argument as String;
-    return stockQuantityByItemName(ref, argument);
+    return stockQuantityBySku(ref, argument);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is StockQuantityByItemNameProvider &&
-        other.argument == argument;
+    return other is StockQuantityBySkuProvider && other.argument == argument;
   }
 
   @override
@@ -106,29 +97,23 @@ final class StockQuantityByItemNameProvider
   }
 }
 
-String _$stockQuantityByItemNameHash() =>
-    r'a4797e73176dbf18ccf01c24c74d94caa478e2e7';
+String _$stockQuantityBySkuHash() =>
+    r'94c7c7e1a13fe22d1d9387a97590644fa95ea091';
 
-/// Helper untuk ambil stok satu barang saja, dipakai nanti di step 4
-/// (validasi stok saat barang keluar).
-
-final class StockQuantityByItemNameFamily extends $Family
+final class StockQuantityBySkuFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<int>, String> {
-  StockQuantityByItemNameFamily._()
+  StockQuantityBySkuFamily._()
     : super(
         retry: null,
-        name: r'stockQuantityByItemNameProvider',
+        name: r'stockQuantityBySkuProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
         isAutoDispose: true,
       );
 
-  /// Helper untuk ambil stok satu barang saja, dipakai nanti di step 4
-  /// (validasi stok saat barang keluar).
-
-  StockQuantityByItemNameProvider call(String itemName) =>
-      StockQuantityByItemNameProvider._(argument: itemName, from: this);
+  StockQuantityBySkuProvider call(String sku) =>
+      StockQuantityBySkuProvider._(argument: sku, from: this);
 
   @override
-  String toString() => r'stockQuantityByItemNameProvider';
+  String toString() => r'stockQuantityBySkuProvider';
 }
