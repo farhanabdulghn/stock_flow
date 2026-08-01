@@ -21,6 +21,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _passwordFocusNode = FocusNode();
 
   bool _obscurePassword = true;
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -33,7 +34,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  void _onLogin() {
+  Future<void> _onLogin() async {
+    if (_isSubmitting) return;
+
     FocusScope.of(context).unfocus();
 
     final isValid = _formKey.currentState?.validate() ?? false;
@@ -43,19 +46,62 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       return;
     }
 
-    final email = _emailController.text.trim();
-    final password = _passwordController.text;
+    setState(() {
+      _isSubmitting = true;
+    });
 
-    ref.read(authProvider.notifier).login(email, password);
+    try {
+      final email = _emailController.text.trim();
+      final password = _passwordController.text;
 
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      AppRoute.mainFrame,
-      (route) => false,
-    );
+      await ref.read(authProvider.notifier).login(email, password);
+
+      if (!mounted) return;
+
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoute.mainFrame,
+        (route) => false,
+      );
+    } catch (error) {
+      if (!mounted) return;
+
+      _showLoginError(_getReadableError(error));
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
+  }
+
+  void _fillDemoAccount({required String email, required String password}) {
+    _emailController.text = email;
+    _passwordController.text = password;
+
+    _formKey.currentState?.validate();
+
+    FocusScope.of(context).unfocus();
+  }
+
+  String _getReadableError(Object error) {
+    return error
+        .toString()
+        .replaceFirst('Invalid argument(s): ', '')
+        .replaceFirst('Bad state: ', '')
+        .replaceFirst('Exception: ', '');
   }
 
   void _showValidationError() {
+    _showErrorSnackBar('Lengkapi email dan password terlebih dahulu.');
+  }
+
+  void _showLoginError(String message) {
+    _showErrorSnackBar(message);
+  }
+
+  void _showErrorSnackBar(String message) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -74,7 +120,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Lengkapi email dan password terlebih dahulu.',
+                  message,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onErrorContainer,
                     fontWeight: FontWeight.w600,
@@ -153,7 +199,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
-                                  'Masukkan email dan password untuk melanjutkan.',
+                                  'Masukkan akun Admin atau Operator '
+                                  'untuk melanjutkan.',
                                   style: theme.textTheme.bodyMedium?.copyWith(
                                     color: colorScheme.onSurfaceVariant,
                                     height: 1.5,
@@ -170,6 +217,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 TextFormField(
                                   controller: _emailController,
                                   focusNode: _emailFocusNode,
+                                  enabled: !_isSubmitting,
                                   keyboardType: TextInputType.emailAddress,
                                   textInputAction: TextInputAction.next,
                                   autofillHints: const [
@@ -202,6 +250,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 TextFormField(
                                   controller: _passwordController,
                                   focusNode: _passwordFocusNode,
+                                  enabled: !_isSubmitting,
                                   obscureText: _obscurePassword,
                                   textInputAction: TextInputAction.done,
                                   autofillHints: const [AutofillHints.password],
@@ -219,11 +268,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                       tooltip: _obscurePassword
                                           ? 'Tampilkan password'
                                           : 'Sembunyikan password',
-                                      onPressed: () {
-                                        setState(() {
-                                          _obscurePassword = !_obscurePassword;
-                                        });
-                                      },
+                                      onPressed: _isSubmitting
+                                          ? null
+                                          : () {
+                                              setState(() {
+                                                _obscurePassword =
+                                                    !_obscurePassword;
+                                              });
+                                            },
                                       icon: PhosphorIcon(
                                         _obscurePassword
                                             ? PhosphorIconsRegular.eyeSlash
@@ -234,17 +286,76 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   ),
                                 ),
 
+                                const SizedBox(height: 22),
+
+                                Text(
+                                  'Akun Demo',
+                                  style: theme.textTheme.labelLarge,
+                                ),
+                                const SizedBox(height: 10),
+
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: OutlinedButton.icon(
+                                        onPressed: _isSubmitting
+                                            ? null
+                                            : () {
+                                                _fillDemoAccount(
+                                                  email: 'admin@stockflow.com',
+                                                  password: 'admin123',
+                                                );
+                                              },
+                                        icon: const PhosphorIcon(
+                                          PhosphorIconsRegular.shieldCheck,
+                                          size: 18,
+                                        ),
+                                        label: const Text('Admin'),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: OutlinedButton.icon(
+                                        onPressed: _isSubmitting
+                                            ? null
+                                            : () {
+                                                _fillDemoAccount(
+                                                  email:
+                                                      'operator@stockflow.com',
+                                                  password: 'operator123',
+                                                );
+                                              },
+                                        icon: const PhosphorIcon(
+                                          PhosphorIconsRegular.user,
+                                          size: 18,
+                                        ),
+                                        label: const Text('Operator'),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
                                 const SizedBox(height: 24),
 
                                 SizedBox(
                                   width: double.infinity,
                                   child: FilledButton.icon(
-                                    onPressed: _onLogin,
-                                    icon: const PhosphorIcon(
-                                      PhosphorIconsRegular.signIn,
-                                      size: 20,
+                                    onPressed: _isSubmitting ? null : _onLogin,
+                                    icon: _isSubmitting
+                                        ? const SizedBox(
+                                            width: 18,
+                                            height: 18,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                            ),
+                                          )
+                                        : const PhosphorIcon(
+                                            PhosphorIconsRegular.signIn,
+                                            size: 20,
+                                          ),
+                                    label: Text(
+                                      _isSubmitting ? 'Memproses...' : 'Masuk',
                                     ),
-                                    label: const Text('Masuk'),
                                   ),
                                 ),
                               ],

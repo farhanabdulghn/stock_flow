@@ -4,3 +4,5 @@ enum HiveBox {
   transactionProductInbound,
   transactionProductOutbound,
 }
+
+enum UserRole { admin, operator }
