@@ -11,6 +11,14 @@
   <img src="https://img.shields.io/badge/Storage-Hive%20CE-F7B731" alt="Hive CE">
 </p>
 
+## Screenshot Aplikasi
+
+<p align="center">
+  <img src="./screenshoots/screenshoot-1.png" alt="Tampilan aplikasi Stock Flow 1" width="280">
+  &nbsp;&nbsp;
+  <img src="./screenshoots/screenshoot-2.png" alt="Tampilan aplikasi Stock Flow 2" width="280">
+</p>
+
 ## Tentang Aplikasi
 
 **Stock Flow** adalah aplikasi mobile untuk membantu perusahaan mencatat dan memantau persediaan barang pada satu gudang utama.
@@ -29,10 +37,10 @@ Setiap transaksi menyimpan referensi barang menggunakan **SKU**, sehingga perhit
 
 Aplikasi menyediakan login sederhana dengan dua jenis pengguna:
 
-| Role | Hak Akses |
-|---|---|
-| **Admin** | Mengakses master barang, transaksi barang masuk, dan transaksi barang keluar |
-| **Operator** | Mengakses transaksi barang masuk dan transaksi barang keluar |
+| Role         | Hak Akses                                                                    |
+| ------------ | ---------------------------------------------------------------------------- |
+| **Admin**    | Mengakses master barang, transaksi barang masuk, dan transaksi barang keluar |
+| **Operator** | Mengakses transaksi barang masuk dan transaksi barang keluar                 |
 
 Session pengguna disimpan secara lokal sehingga pengguna yang sudah login dapat langsung diarahkan ke halaman utama saat aplikasi dibuka kembali.
 
@@ -40,65 +48,65 @@ Session pengguna disimpan secara lokal sehingga pengguna yang sudah login dapat 
 
 Admin dapat mengelola data barang dengan informasi:
 
-- SKU
-- Nama barang
-- Kategori
-- Satuan
-- Stok saat ini
+* SKU
+* Nama barang
+* Kategori
+* Satuan
+* Stok saat ini
 
 Kemampuan yang tersedia:
 
-- Menambah barang
-- Mengubah barang
-- Menghapus barang
-- Mencari berdasarkan SKU, nama, kategori, atau satuan
-- Validasi field wajib
-- Validasi SKU unik tanpa membedakan huruf besar dan kecil
-- Normalisasi SKU menjadi huruf kapital
-- Mencegah penghapusan barang yang sudah memiliki histori transaksi
-- Menampilkan indikator stok kosong
+* Menambah barang
+* Mengubah barang
+* Menghapus barang
+* Mencari berdasarkan SKU, nama, kategori, atau satuan
+* Validasi field wajib
+* Validasi SKU unik tanpa membedakan huruf besar dan kecil
+* Normalisasi SKU menjadi huruf kapital
+* Mencegah penghapusan barang yang sudah memiliki histori transaksi
+* Menampilkan indikator stok kosong
 
 ### 3. Transaksi Barang Masuk
 
 Pengguna dapat mencatat barang yang masuk ke gudang dengan data:
 
-- Tanggal
-- Barang
-- Jumlah
-- Keterangan opsional
+* Tanggal
+* Barang
+* Jumlah
+* Keterangan opsional
 
 Kemampuan tambahan:
 
-- Pemilihan barang dari master barang
-- Penyimpanan SKU sebagai referensi transaksi
-- Validasi jumlah harus lebih dari nol
-- Pencarian histori transaksi
-- Ringkasan jumlah transaksi dan total barang masuk
-- Detail transaksi melalui bottom sheet
-- Pull-to-refresh
-- Konfirmasi untuk tindakan destruktif
+* Pemilihan barang dari master barang
+* Penyimpanan SKU sebagai referensi transaksi
+* Validasi jumlah harus lebih dari nol
+* Pencarian histori transaksi
+* Ringkasan jumlah transaksi dan total barang masuk
+* Detail transaksi melalui bottom sheet
+* Pull-to-refresh
+* Konfirmasi untuk tindakan destruktif
 
 ### 4. Transaksi Barang Keluar
 
 Pengguna dapat mencatat barang yang keluar dari gudang dengan data:
 
-- Tanggal
-- Barang
-- Jumlah
-- Tujuan
+* Tanggal
+* Barang
+* Jumlah
+* Tujuan
 
 Kemampuan tambahan:
 
-- Pemilihan barang dari master barang
-- Validasi tujuan wajib diisi
-- Validasi jumlah harus lebih dari nol
-- Pemeriksaan stok sebelum transaksi disimpan
-- Penolakan transaksi apabila jumlah melebihi stok tersedia
-- Pencarian histori transaksi
-- Ringkasan jumlah transaksi dan total barang keluar
-- Detail transaksi melalui bottom sheet
-- Pull-to-refresh
-- Konfirmasi untuk tindakan destruktif
+* Pemilihan barang dari master barang
+* Validasi tujuan wajib diisi
+* Validasi jumlah harus lebih dari nol
+* Pemeriksaan stok sebelum transaksi disimpan
+* Penolakan transaksi apabila jumlah melebihi stok tersedia
+* Pencarian histori transaksi
+* Ringkasan jumlah transaksi dan total barang keluar
+* Detail transaksi melalui bottom sheet
+* Pull-to-refresh
+* Konfirmasi untuk tindakan destruktif
 
 ### 5. Perhitungan Stok Otomatis
 
@@ -126,10 +134,10 @@ Aplikasi dapat digunakan tanpa backend karena data disimpan secara lokal menggun
 
 Data yang disimpan meliputi:
 
-- Session pengguna
-- Master barang
-- Transaksi barang masuk
-- Transaksi barang keluar
+* Session pengguna
+* Master barang
+* Transaksi barang masuk
+* Transaksi barang keluar
 
 Box autentikasi menggunakan enkripsi Hive AES. Kunci enkripsi dibuat satu kali dan disimpan melalui Flutter Secure Storage.
 
@@ -137,56 +145,56 @@ Box autentikasi menggunakan enkripsi Hive AES. Kunci enkripsi dibuat satu kali d
 
 Gunakan akun berikut untuk mencoba perbedaan hak akses:
 
-| Role | Email | Password |
-|---|---|---|
-| Admin | `admin@stockflow.com` | `admin123` |
+| Role     | Email                    | Password      |
+| -------- | ------------------------ | ------------- |
+| Admin    | `admin@stockflow.com`    | `admin123`    |
 | Operator | `operator@stockflow.com` | `operator123` |
 
 > Akun di atas masih bersifat hardcoded untuk kebutuhan demonstrasi dan studi kasus. Jangan gunakan pendekatan ini untuk autentikasi production.
 
 ## Teknologi
 
-- Flutter
-- Dart
-- Riverpod
-- Riverpod Generator
-- Freezed
-- JSON Serializable
-- Hive CE
-- Flutter Secure Storage
-- Material Design
-- Google Fonts
-- Phosphor Icons
+* Flutter
+* Dart
+* Riverpod
+* Riverpod Generator
+* Freezed
+* JSON Serializable
+* Hive CE
+* Flutter Secure Storage
+* Material Design
+* Google Fonts
+* Phosphor Icons
 
 ## Package
 
 ### Dependencies
 
-| Package | Versi | Kegunaan |
-|---|---:|---|
-| `flutter_riverpod` | `^3.3.2` | State management dan dependency injection |
-| `riverpod_annotation` | `^4.0.3` | Annotation untuk provider berbasis code generation |
-| `hive_ce` | `^2.19.3` | Database key-value lokal |
-| `hive_ce_flutter` | `^2.3.4` | Integrasi Hive CE dengan Flutter |
-| `flutter_secure_storage` | `^10.3.1` | Menyimpan kunci enkripsi secara aman |
-| `freezed_annotation` | `^3.1.0` | Immutable model dan union class |
-| `json_annotation` | `^4.12.0` | Annotation serialisasi JSON |
-| `google_fonts` | `^8.2.1` | Font untuk tampilan aplikasi |
-| `phosphoricons_flutter` | `^1.0.0` | Koleksi ikon |
-| `dio` | `^5.11.0` | HTTP client yang tersedia untuk pengembangan integrasi API |
+| Package                  |     Versi | Kegunaan                                                   |
+| ------------------------ | --------: | ---------------------------------------------------------- |
+| `flutter_riverpod`       |  `^3.3.2` | State management dan dependency injection                  |
+| `riverpod_annotation`    |  `^4.0.3` | Annotation untuk provider berbasis code generation         |
+| `hive_ce`                | `^2.19.3` | Database key-value lokal                                   |
+| `hive_ce_flutter`        |  `^2.3.4` | Integrasi Hive CE dengan Flutter                           |
+| `flutter_secure_storage` | `^10.3.1` | Menyimpan kunci enkripsi secara aman                       |
+| `freezed_annotation`     |  `^3.1.0` | Immutable model dan union class                            |
+| `json_annotation`        | `^4.12.0` | Annotation serialisasi JSON                                |
+| `google_fonts`           |  `^8.2.1` | Font untuk tampilan aplikasi                               |
+| `phosphoricons_flutter`  |  `^1.0.0` | Koleksi ikon                                               |
+| `dio`                    | `^5.11.0` | HTTP client yang tersedia untuk pengembangan integrasi API |
 
 ### Dev Dependencies
 
-| Package | Versi | Kegunaan |
-|---|---:|---|
-| `build_runner` | `^2.15.1` | Menjalankan code generator |
-| `riverpod_generator` | `^4.0.4` | Menghasilkan provider Riverpod |
-| `freezed` | `^3.2.5` | Menghasilkan immutable model |
-| `json_serializable` | `^6.14.0` | Menghasilkan fungsi serialisasi JSON |
-| `hive_ce_generator` | `^1.11.2` | Menghasilkan adapter Hive |
+| Package              |     Versi | Kegunaan                                  |
+| -------------------- | --------: | ----------------------------------------- |
+| `build_runner`       | `^2.15.1` | Menjalankan code generator                |
+| `riverpod_generator` |  `^4.0.4` | Menghasilkan provider Riverpod            |
+| `freezed`            |  `^3.2.5` | Menghasilkan immutable model              |
+| `json_serializable`  | `^6.14.0` | Menghasilkan fungsi serialisasi JSON      |
+| `hive_ce_generator`  | `^1.11.2` | Menghasilkan adapter Hive                 |
 | `flutter_gen_runner` | `^5.15.0` | Menghasilkan akses asset secara type-safe |
-| `riverpod_lint` | `^3.1.4` | Lint tambahan untuk Riverpod |
-| `flutter_lints` | `^6.0.0` | Rekomendasi lint resmi Flutter |
+| `riverpod_lint`      |  `^3.1.4` | Lint tambahan untuk Riverpod              |
+| `flutter_lints`      |  `^6.0.0` | Rekomendasi lint resmi Flutter            |
 
 ## Struktur Project
 
@@ -323,10 +331,10 @@ Splash Screen
 
 Pastikan perangkat sudah memiliki:
 
-- Flutter SDK yang kompatibel dengan Dart `^3.12.2`
-- Android Studio atau Visual Studio Code
-- Android SDK
-- Emulator atau perangkat Android
+* Flutter SDK yang kompatibel dengan Dart `^3.12.2`
+* Android Studio atau Visual Studio Code
+* Android SDK
+* Emulator atau perangkat Android
 
 Periksa instalasi Flutter:
 
@@ -365,11 +373,11 @@ flutter run
 
 Project menggunakan code generation untuk:
 
-- Freezed
-- JSON Serializable
-- Riverpod
-- Hive adapter
-- Flutter Gen
+* Freezed
+* JSON Serializable
+* Riverpod
+* Hive adapter
+* Flutter Gen
 
 Saat mengembangkan model atau provider, gunakan mode watch:
 
@@ -399,32 +407,32 @@ Saat aplikasi pertama kali dijalankan:
 
 ## Catatan Pengembangan
 
-- Nama package internal pada `pubspec.yaml` saat ini masih `untitled`.
-- Autentikasi masih menggunakan akun demo lokal.
-- `dio` sudah tersedia sebagai dependency, tetapi aplikasi saat ini berfokus pada penyimpanan lokal.
-- Aplikasi dikunci pada orientasi portrait.
-- Belum terdapat sinkronisasi cloud atau backend.
-- Belum terdapat automated test yang mencakup seluruh business rule.
+* Nama package internal pada `pubspec.yaml` saat ini masih `untitled`.
+* Autentikasi masih menggunakan akun demo lokal.
+* `dio` sudah tersedia sebagai dependency, tetapi aplikasi saat ini berfokus pada penyimpanan lokal.
+* Aplikasi dikunci pada orientasi portrait.
+* Belum terdapat sinkronisasi cloud atau backend.
+* Belum terdapat automated test yang mencakup seluruh business rule.
 
 ## Pengembangan Berikutnya
 
 Beberapa pengembangan yang dapat dilakukan:
 
-- Integrasi REST API dan backend
-- Autentikasi production
-- Sinkronisasi data multi-device
-- Audit trail pengguna untuk setiap transaksi
-- Pagination dan filter berdasarkan tanggal
-- Export laporan ke PDF atau Excel
-- Dashboard statistik stok
-- Notifikasi stok menipis
-- Barcode atau QR scanner untuk memilih barang
-- Unit test dan widget test untuk business rule
-- Role dan permission yang dikelola dari server
+* Integrasi REST API dan backend
+* Autentikasi production
+* Sinkronisasi data multi-device
+* Audit trail pengguna untuk setiap transaksi
+* Pagination dan filter berdasarkan tanggal
+* Export laporan ke PDF atau Excel
+* Dashboard statistik stok
+* Notifikasi stok menipis
+* Barcode atau QR scanner untuk memilih barang
+* Unit test dan widget test untuk business rule
+* Role dan permission yang dikelola dari server
 
 ## Author
 
 **Farhan Abdul Ghani**
 
-- GitHub: [farhanabdulghn](https://github.com/farhanabdulghn)
-- Repository: [stock_flow](https://github.com/farhanabdulghn/stock_flow)
+* GitHub: [farhanabdulghn](https://github.com/farhanabdulghn)
+* Repository: [stock_flow](https://github.com/farhanabdulghn/stock_flow)
