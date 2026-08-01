@@ -33,13 +33,6 @@ class _AddOutboundTransactionSectionState
   bool _isSubmitting = false;
   String? _errorMessage;
 
-  @override
-  void dispose() {
-    _quantityController.dispose();
-    _destinationController.dispose();
-    super.dispose();
-  }
-
   Future<void> _pickDate() async {
     final now = DateTime.now();
 
@@ -115,6 +108,13 @@ class _AddOutboundTransactionSectionState
         .replaceFirst('Bad state: ', '')
         .replaceFirst('StateError: ', '')
         .replaceFirst('ArgumentError: ', '');
+  }
+
+  @override
+  void dispose() {
+    _quantityController.dispose();
+    _destinationController.dispose();
+    super.dispose();
   }
 
   @override

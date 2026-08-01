@@ -31,13 +31,6 @@ class _AddInboundTransactionSectionState
   DateTime _selectedDate = DateTime.now();
   bool _isSubmitting = false;
 
-  @override
-  void dispose() {
-    _quantityController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
-  }
-
   Future<void> _pickDate() async {
     final now = DateTime.now();
 
@@ -89,6 +82,13 @@ class _AddInboundTransactionSectionState
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
+  }
+
+  @override
+  void dispose() {
+    _quantityController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
   }
 
   @override

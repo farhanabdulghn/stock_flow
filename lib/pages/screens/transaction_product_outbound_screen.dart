@@ -20,24 +20,14 @@ class _TransactionProductOutboundScreenState
 
   String _searchQuery = '';
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
   void _onSearchChanged(String value) {
-    setState(() {
-      _searchQuery = value.trim().toLowerCase();
-    });
+    setState(() => _searchQuery = value.trim().toLowerCase());
   }
 
   void _clearSearch() {
     _searchController.clear();
 
-    setState(() {
-      _searchQuery = '';
-    });
+    setState(() => _searchQuery = '');
 
     FocusScope.of(context).unfocus();
   }
@@ -49,9 +39,7 @@ class _TransactionProductOutboundScreenState
   Future<void> _showClearConfirmation() async {
     final transactions = ref.read(_provider);
 
-    if (transactions.isEmpty) {
-      return;
-    }
+    if (transactions.isEmpty) return;
 
     final shouldClear = await showDialog<bool>(
       context: context,
@@ -64,17 +52,15 @@ class _TransactionProductOutboundScreenState
             color: colorScheme.error,
             size: 32,
           ),
-          title: const Text('Hapus semua transaksi?'),
-          content: const Text(
+          title: Text('Hapus semua transaksi?'),
+          content: Text(
             'Seluruh riwayat transaksi barang keluar akan dihapus secara permanen.',
             textAlign: TextAlign.center,
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop(false);
-              },
-              child: const Text('Batal'),
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text('Batal'),
             ),
             FilledButton(
               style: FilledButton.styleFrom(
@@ -84,22 +70,18 @@ class _TransactionProductOutboundScreenState
               onPressed: () {
                 Navigator.of(dialogContext).pop(true);
               },
-              child: const Text('Hapus Semua'),
+              child: Text('Hapus Semua'),
             ),
           ],
         );
       },
     );
 
-    if (shouldClear != true) {
-      return;
-    }
+    if (shouldClear != true) return;
 
     await ref.read(_provider.notifier).clear();
 
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
 
     _clearSearch();
 
@@ -111,13 +93,17 @@ class _TransactionProductOutboundScreenState
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final transactions = ref.watch(_provider);
 
     final filteredTransactions = transactions.where((transaction) {
-      if (_searchQuery.isEmpty) {
-        return true;
-      }
+      if (_searchQuery.isEmpty) return true;
 
       final searchableValues = [
         transaction.product,
@@ -139,7 +125,7 @@ class _TransactionProductOutboundScreenState
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Barang Keluar'),
+        title: Text('Barang Keluar'),
         actions: [
           IconButton(
             tooltip: 'Tambah',
@@ -147,25 +133,23 @@ class _TransactionProductOutboundScreenState
               final added = await AddOutboundTransactionSection.show(context);
               if (added == true && context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Barang keluar berhasil disimpan.'),
-                  ),
+                  SnackBar(content: Text('Barang keluar berhasil disimpan.')),
                 );
               }
             },
-            icon: const Icon(Icons.add_rounded),
+            icon: Icon(Icons.add_rounded),
           ),
           IconButton(
             tooltip: 'Muat ulang',
             onPressed: _refreshTransactions,
-            icon: const Icon(Icons.refresh_rounded),
+            icon: Icon(Icons.refresh_rounded),
           ),
           IconButton(
             tooltip: 'Hapus semua transaksi',
             onPressed: transactions.isEmpty ? null : _showClearConfirmation,
-            icon: const Icon(Icons.delete_sweep_outlined),
+            icon: Icon(Icons.delete_sweep_outlined),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
         ],
       ),
       body: SafeArea(

@@ -44,28 +44,6 @@ class _ProductFormSectionState extends ConsumerState<ProductFormSection> {
 
   bool _isSubmitting = false;
 
-  @override
-  void initState() {
-    super.initState();
-
-    final product = widget.product;
-
-    _skuController.text = product?.sku ?? '';
-    _itemNameController.text = product?.itemName ?? '';
-    _categoryController.text = product?.category ?? '';
-    _unitController.text = product?.unit ?? '';
-  }
-
-  @override
-  void dispose() {
-    _skuController.dispose();
-    _itemNameController.dispose();
-    _categoryController.dispose();
-    _unitController.dispose();
-
-    super.dispose();
-  }
-
   Future<void> _submit() async {
     if (_isSubmitting) return;
 
@@ -125,6 +103,28 @@ class _ProductFormSectionState extends ConsumerState<ProductFormSection> {
     return message
         .replaceFirst('Invalid argument(s): ', '')
         .replaceFirst('Bad state: ', '');
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    final product = widget.product;
+
+    _skuController.text = product?.sku ?? '';
+    _itemNameController.text = product?.itemName ?? '';
+    _categoryController.text = product?.category ?? '';
+    _unitController.text = product?.unit ?? '';
+  }
+
+  @override
+  void dispose() {
+    _skuController.dispose();
+    _itemNameController.dispose();
+    _categoryController.dispose();
+    _unitController.dispose();
+
+    super.dispose();
   }
 
   @override
