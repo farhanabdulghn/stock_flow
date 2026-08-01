@@ -133,7 +133,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
       );
     }
 
-    return RefreshIndicator(
+    return RefreshIndicator.adaptive(
       onRefresh: _refreshProducts,
       child: ListView.separated(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -338,7 +338,7 @@ class _ProductEmptyState extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return RefreshIndicator(
+    return RefreshIndicator.adaptive(
       onRefresh: onRefresh,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
