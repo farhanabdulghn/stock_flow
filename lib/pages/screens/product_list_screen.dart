@@ -282,11 +282,11 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
   }) {
     final stockState = ref.watch(stockListProvider);
 
-    final stockByItemName = stockState.maybeWhen(
+    final stockBySku = stockState.maybeWhen(
       data: (list) {
         return {
           for (final stock in list)
-            stock.itemName.trim().toLowerCase(): stock.quantity,
+            stock.sku.trim().toUpperCase(): stock.quantity,
         };
       },
       orElse: () => <String, int>{},
@@ -319,8 +319,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
         itemBuilder: (context, index) {
           final product = filteredProducts[index];
 
-          final stock =
-              stockByItemName[product.itemName.trim().toLowerCase()] ?? 0;
+          final stock = stockBySku[product.sku.trim().toUpperCase()] ?? 0;
 
           return _ProductCard(
             number: index + 1,

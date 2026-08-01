@@ -5,19 +5,11 @@ import 'package:untitled/models/auth/auth_model.dart';
 import 'package:untitled/models/product/product_model.dart';
 import 'package:untitled/models/transaction_product_inbound/transaction_product_inbound_model.dart';
 import 'package:untitled/models/transaction_product_outbound/transaction_product_outbound_model.dart';
-import 'package:untitled/networks/repositories/product_repository.dart';
 import 'package:untitled/storage/hive/hive_transaction_reference_migration.dart';
 import 'package:untitled/storage/secure_storage/secure_storage.dart';
 import 'package:untitled/utils/enums.dart';
 
 class HiveStorage {
-  static Future<void> _seedProductsIfEmpty(Box<ProductModel> box) async {
-    if (box.isNotEmpty) return;
-
-    final products = await ProductRepository().getProducts();
-    await box.addAll(products);
-  }
-
   static Future<void> init() async {
     await Hive.initFlutter();
 
@@ -43,8 +35,7 @@ class HiveStorage {
       encryptionCipher: HiveAesCipher(encryptionKeyUint8List),
     );
 
-    final product = await Hive.openBox<ProductModel>(HiveBox.product.name);
-    await _seedProductsIfEmpty(product);
+    await Hive.openBox<ProductModel>(HiveBox.product.name);
 
     await Hive.openBox<TransactionProductInboundModel>(
       HiveBox.transactionProductInbound.name,

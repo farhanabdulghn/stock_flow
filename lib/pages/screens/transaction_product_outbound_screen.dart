@@ -146,7 +146,7 @@ class _TransactionProductOutboundScreenState
               if (added == true && context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Barang masuk berhasil disimpan.'),
+                    content: Text('Barang keluar berhasil disimpan.'),
                   ),
                 );
               }
