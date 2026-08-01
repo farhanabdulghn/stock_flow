@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:untitled/models/product/product_model.dart';
+import 'package:untitled/pages/sections/product_form_section.dart';
 import 'package:untitled/states/actions/product/product_state.dart';
 import 'package:untitled/states/actions/stock/stock_state.dart';
+import 'package:untitled/states/stores/product/product_notifier.dart';
+import 'package:untitled/states/stores/transaction_product_inbound/transaction_product_inbound_notifier.dart';
+import 'package:untitled/states/stores/transaction_product_outbound/transaction_product_outbound_notifier.dart';
 
 class ProductListScreen extends ConsumerStatefulWidget {
   const ProductListScreen({super.key});
@@ -11,7 +16,7 @@ class ProductListScreen extends ConsumerStatefulWidget {
 }
 
 class _ProductListScreenState extends ConsumerState<ProductListScreen> {
-  final TextEditingController _searchController = TextEditingController();
+  final _searchController = TextEditingController();
 
   String _searchQuery = '';
 
@@ -23,11 +28,12 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
 
   Future<void> _refreshProducts() async {
     ref.invalidate(getProductsProvider);
+    ref.invalidate(stockListProvider);
 
     try {
       await ref.read(getProductsProvider.future);
     } catch (_) {
-      // Error akan ditampilkan melalui state.when.
+      // Error ditampilkan oleh AsyncValue pada UI.
     }
   }
 
@@ -47,6 +53,133 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
     FocusScope.of(context).unfocus();
   }
 
+  bool _hasTransactionHistory(ProductModel product) {
+    final normalizedItemName = product.itemName.trim().toLowerCase();
+
+    final inboundTransactions = ref.read(transactionProductInboundProvider);
+
+    final outboundTransactions = ref.read(transactionProductOutboundProvider);
+
+    final hasInboundHistory = inboundTransactions.any((transaction) {
+      return transaction.product.trim().toLowerCase() == normalizedItemName;
+    });
+
+    final hasOutboundHistory = outboundTransactions.any((transaction) {
+      return transaction.product.trim().toLowerCase() == normalizedItemName;
+    });
+
+    return hasInboundHistory || hasOutboundHistory;
+  }
+
+  Future<void> _showAddProductForm() async {
+    final added = await ProductFormSection.show(context);
+
+    if (added != true || !mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Barang berhasil ditambahkan.')),
+    );
+  }
+
+  Future<void> _showEditProductForm(ProductModel product) async {
+    final hasTransactionHistory = _hasTransactionHistory(product);
+
+    final updated = await ProductFormSection.show(
+      context,
+      product: product,
+      lockItemName: hasTransactionHistory,
+    );
+
+    if (updated != true || !mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Barang berhasil diperbarui.')),
+    );
+  }
+
+  Future<void> _showDeleteConfirmation(ProductModel product) async {
+    final hasTransactionHistory = _hasTransactionHistory(product);
+
+    if (hasTransactionHistory) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Barang tidak dapat dihapus karena sudah memiliki '
+            'histori transaksi.',
+          ),
+        ),
+      );
+
+      return;
+    }
+
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        final colorScheme = Theme.of(dialogContext).colorScheme;
+
+        return AlertDialog(
+          icon: Icon(
+            Icons.delete_outline_rounded,
+            color: colorScheme.error,
+            size: 34,
+          ),
+          title: const Text('Hapus barang?'),
+          content: Text(
+            'Barang "${product.itemName}" dengan SKU '
+            '"${product.sku}" akan dihapus secara permanen.',
+            textAlign: TextAlign.center,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false);
+              },
+              child: const Text('Batal'),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: colorScheme.error,
+                foregroundColor: colorScheme.onError,
+              ),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true);
+              },
+              child: const Text('Hapus'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldDelete != true) return;
+
+    try {
+      await ref.read(productProvider.notifier).deleteProduct(product.sku);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Barang berhasil dihapus.')));
+    } catch (error) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal menghapus barang: ${_getReadableError(error)}'),
+        ),
+      );
+    }
+  }
+
+  String _getReadableError(Object error) {
+    return error
+        .toString()
+        .replaceFirst('Invalid argument(s): ', '')
+        .replaceFirst('Bad state: ', '');
+  }
+
   @override
   Widget build(BuildContext context) {
     final productsState = ref.watch(getProductsProvider);
@@ -56,7 +189,12 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
         title: const Text('Daftar Barang'),
         actions: [
           IconButton(
-            tooltip: 'Muat ulang',
+            tooltip: 'Tambah Barang',
+            onPressed: _showAddProductForm,
+            icon: const Icon(Icons.add_rounded),
+          ),
+          IconButton(
+            tooltip: 'Muat Ulang',
             onPressed: _refreshProducts,
             icon: const Icon(Icons.refresh_rounded),
           ),
@@ -73,11 +211,18 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
           },
           data: (products) {
             final filteredProducts = products.where((product) {
-              if (_searchQuery.isEmpty) {
-                return true;
-              }
+              if (_searchQuery.isEmpty) return true;
 
-              return product.itemName.toLowerCase().contains(_searchQuery);
+              final searchableValues = [
+                product.sku,
+                product.itemName,
+                product.category,
+                product.unit,
+              ];
+
+              return searchableValues.any((value) {
+                return value.toLowerCase().contains(_searchQuery);
+              });
             }).toList();
 
             return Column(
@@ -93,12 +238,12 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
                     textInputAction: TextInputAction.search,
                     onChanged: _onSearchChanged,
                     decoration: InputDecoration(
-                      hintText: 'Cari nama barang...',
+                      hintText: 'Cari SKU, nama, kategori, atau satuan...',
                       prefixIcon: const Icon(Icons.search_rounded),
                       suffixIcon: _searchQuery.isEmpty
                           ? null
                           : IconButton(
-                              tooltip: 'Hapus pencarian',
+                              tooltip: 'Hapus Pencarian',
                               onPressed: _clearSearch,
                               icon: const Icon(Icons.close_rounded),
                             ),
@@ -121,17 +266,25 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
 
   Widget _buildProductContent({
     required bool allProductsEmpty,
-    required List<dynamic> filteredProducts,
+    required List<ProductModel> filteredProducts,
   }) {
     final stockState = ref.watch(stockListProvider);
 
     final stockByItemName = stockState.maybeWhen(
-      data: (list) => {for (final s in list) s.itemName: s.quantity},
+      data: (list) {
+        return {
+          for (final stock in list)
+            stock.itemName.trim().toLowerCase(): stock.quantity,
+        };
+      },
       orElse: () => <String, int>{},
     );
 
     if (allProductsEmpty) {
-      return _ProductEmptyState(onRefresh: _refreshProducts);
+      return _ProductEmptyState(
+        onAddProduct: _showAddProductForm,
+        onRefresh: _refreshProducts,
+      );
     }
 
     if (filteredProducts.isEmpty) {
@@ -146,7 +299,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
       child: ListView.separated(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 110),
         itemCount: filteredProducts.length,
         separatorBuilder: (context, index) {
           return const SizedBox(height: 10);
@@ -154,16 +307,27 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
         itemBuilder: (context, index) {
           final product = filteredProducts[index];
 
+          final stock =
+              stockByItemName[product.itemName.trim().toLowerCase()] ?? 0;
+
           return _ProductCard(
             number: index + 1,
-            itemName: product.itemName,
-            stock: stockByItemName[product.itemName] ?? 0,
+            product: product,
+            stock: stock,
+            onEdit: () {
+              _showEditProductForm(product);
+            },
+            onDelete: () {
+              _showDeleteConfirmation(product);
+            },
           );
         },
       ),
     );
   }
 }
+
+enum _ProductAction { edit, delete }
 
 class _ProductSummaryCard extends StatelessWidget {
   const _ProductSummaryCard({required this.totalProducts});
@@ -227,122 +391,206 @@ class _ProductSummaryCard extends StatelessWidget {
 class _ProductCard extends StatelessWidget {
   const _ProductCard({
     required this.number,
-    required this.itemName,
+    required this.product,
     required this.stock,
+    required this.onEdit,
+    required this.onDelete,
   });
 
   final int number;
-  final String itemName;
+  final ProductModel product;
   final int stock;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final isLowStock = stock <= 0;
+    final isEmptyStock = stock <= 0;
 
     return Card(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: () {
-          // Tambahkan navigasi ke detail barang di sini.
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(13),
-                ),
-                child: Icon(
-                  Icons.inventory_2_outlined,
-                  color: colorScheme.primary,
-                  size: 24,
-                ),
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(13),
               ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      itemName,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      'Barang tersimpan di inventaris',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
+              child: Icon(
+                Icons.inventory_2_outlined,
+                color: colorScheme.primary,
+                size: 25,
               ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    constraints: const BoxConstraints(
-                      minWidth: 36,
-                      minHeight: 32,
-                    ),
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      '$number',
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                        fontWeight: FontWeight.w700,
-                      ),
+                  Text(
+                    product.itemName,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
+                  const SizedBox(height: 5),
+                  Text(
+                    product.sku,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.w700,
                     ),
-                    decoration: BoxDecoration(
-                      color: isLowStock
-                          ? colorScheme.errorContainer
-                          : colorScheme.tertiaryContainer,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      'Stok: $stock',
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: isLowStock
-                            ? colorScheme.onErrorContainer
-                            : colorScheme.onTertiaryContainer,
-                        fontWeight: FontWeight.w700,
+                  ),
+                  const SizedBox(height: 7),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      _ProductInformationChip(
+                        icon: Icons.category_outlined,
+                        label: product.category,
                       ),
-                    ),
+                      _ProductInformationChip(
+                        icon: Icons.straighten_rounded,
+                        label: product.unit,
+                      ),
+                      _ProductInformationChip(
+                        icon: Icons.inventory_outlined,
+                        label: 'Stok $stock',
+                        isError: isEmptyStock,
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+            const SizedBox(width: 8),
+            Column(
+              children: [
+                Container(
+                  constraints: const BoxConstraints(
+                    minWidth: 34,
+                    minHeight: 30,
+                  ),
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    '$number',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                PopupMenuButton<_ProductAction>(
+                  tooltip: 'Pilihan Barang',
+                  onSelected: (action) {
+                    switch (action) {
+                      case _ProductAction.edit:
+                        onEdit();
+                      case _ProductAction.delete:
+                        onDelete();
+                    }
+                  },
+                  itemBuilder: (context) {
+                    return const [
+                      PopupMenuItem(
+                        value: _ProductAction.edit,
+                        child: Row(
+                          children: [
+                            Icon(Icons.edit_outlined),
+                            SizedBox(width: 12),
+                            Text('Edit'),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: _ProductAction.delete,
+                        child: Row(
+                          children: [
+                            Icon(Icons.delete_outline_rounded),
+                            SizedBox(width: 12),
+                            Text('Hapus'),
+                          ],
+                        ),
+                      ),
+                    ];
+                  },
+                  icon: const Icon(Icons.more_vert_rounded),
+                ),
+              ],
+            ),
+          ],
         ),
+      ),
+    );
+  }
+}
+
+class _ProductInformationChip extends StatelessWidget {
+  const _ProductInformationChip({
+    required this.icon,
+    required this.label,
+    this.isError = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool isError;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      decoration: BoxDecoration(
+        color: isError
+            ? colorScheme.errorContainer
+            : colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 14,
+            color: isError
+                ? colorScheme.onErrorContainer
+                : colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: isError
+                  ? colorScheme.onErrorContainer
+                  : colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -378,8 +626,12 @@ class _ProductLoadingState extends StatelessWidget {
 }
 
 class _ProductEmptyState extends StatelessWidget {
-  const _ProductEmptyState({required this.onRefresh});
+  const _ProductEmptyState({
+    required this.onAddProduct,
+    required this.onRefresh,
+  });
 
+  final VoidCallback onAddProduct;
   final Future<void> Function() onRefresh;
 
   @override
@@ -391,9 +643,9 @@ class _ProductEmptyState extends StatelessWidget {
       onRefresh: onRefresh,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.fromLTRB(32, 32, 32, 110),
         children: [
-          const SizedBox(height: 60),
+          const SizedBox(height: 50),
           Center(
             child: Container(
               width: 92,
@@ -419,19 +671,20 @@ class _ProductEmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Data barang yang sudah ditambahkan akan muncul di halaman ini.',
+            'Tambahkan master barang agar transaksi barang masuk '
+            'dan keluar dapat dilakukan.',
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: colorScheme.onSurfaceVariant,
               height: 1.5,
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 22),
           Center(
-            child: OutlinedButton.icon(
-              onPressed: onRefresh,
-              icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Muat Ulang'),
+            child: FilledButton.icon(
+              onPressed: onAddProduct,
+              icon: const Icon(Icons.add_rounded),
+              label: const Text('Tambah Barang'),
             ),
           ),
         ],
@@ -456,7 +709,7 @@ class _SearchEmptyState extends StatelessWidget {
 
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(32, 24, 32, 80),
+        padding: const EdgeInsets.fromLTRB(32, 24, 32, 110),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -545,8 +798,7 @@ class _ProductErrorState extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Terjadi kesalahan saat mengambil data barang. '
-              'Periksa koneksi atau coba kembali.',
+              'Terjadi kesalahan saat mengambil data barang.',
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurfaceVariant,
